@@ -46,8 +46,8 @@ def init():
     HIWIN_Python.set_operation_mode(s,0) #0自動，1手動
 
     #設定速度
-    HIWIN_Python.set_lin_speed_edited(s,50)#設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
-    HIWIN_Python.set_ptp_speed(s,speedRate)#設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
+    HIWIN_Python.set_lin_speed_edited(s,50) #設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
+    HIWIN_Python.set_ptp_speed(s,speedRate) #設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
     #設定移動%
     HIWIN_Python.set_override_ratio(s,speedRate)#設定整體速度- int set_override_ratio(HROBOT robot, double value)#整體速度比例:1-100(%)
     move_abs(s ,  'PTP' , HOME_POS)
