@@ -60,7 +60,7 @@ def show_form():
     header_frame = Frame(root, width=600)
     header_frame.pack(fill='x', padx=10, pady=(10, 5))
 
-    Label(header_frame, text='', font=("Arial", 14)).grid(row=1, column=2, padx=90)  # Empty cell for alignment
+    Label(header_frame, text='', font=("Arial", 14)).grid(row=1, column=2, padx=90) # Empty cell for alignment
     Label(header_frame, text='Large', font=("Arial", 14)).grid(row=1, column=3, padx=10)
     Label(header_frame, text='Medium', font=("Arial", 14)).grid(row=1, column=4, padx=10)
     Label(header_frame, text='Small', font=("Arial", 14)).grid(row=1, column=5, padx=10)
