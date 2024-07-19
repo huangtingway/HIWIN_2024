@@ -43,7 +43,7 @@ def init():
     time.sleep(0.5)
 
     HIWIN_Python.set_connection_level(s,1)
-    HIWIN_Python.set_operation_mode(s,0) #0自動，1手動
+    HIWIN_Python.set_operation_mode(s,0) #0自動,1手動
 
     #設定速度
     HIWIN_Python.set_lin_speed_edited(s,50) #設定直線運動速度 int set_lin_speed(HROBOT robot, double value),value=mm/s

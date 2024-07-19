@@ -45,7 +45,7 @@ def submit():
         print(f"Order {i}: Large={large}, Medium={medium}, Small={small}")
         stackOrder.append([int(large),int(medium),int(small)])
 
-    isSubmitOrder = True
+    isSubmitOrder = True # Set the flag to True
     root.destroy()  # Close the form
 
 # Function to show the form
