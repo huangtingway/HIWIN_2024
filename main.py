@@ -38,7 +38,7 @@ COM_PORT = 'COM6'
 BAUD_RATES = 9600
 
 def init():
-    s=HIWIN_Python.connect_robot("127.0.0.1",1)#連線
+    s=HIWIN_Python.connect_robot("127.0.0.1",1) #連線
     HIWIN_Python.clear_alarm(s)
     time.sleep(0.5)
 
