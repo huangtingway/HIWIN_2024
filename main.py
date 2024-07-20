@@ -95,7 +95,49 @@ def getcube():
     move_rel(s,'PTP',(0,0,GET_CUBE_STEP,0,0,0)) #抬起夾爪
     return cubeType
 
+def getcube(cubeType, totalneed): #for stack
+    grabSlot = [False,False,False] #夾爪是否有方塊
+
+    if totalneed == 0: return grabSlot
+
+    if cubeType == 'LARGE':
+        move_abs(s,'PTP',GET_LARGE_POS)
+
+    elif cubeType[j] == 'MID':
+        move_abs(s,'PTP',GET_MID_POS)
+
+    elif cubeType[j] == 'SMALL':
+        move_abs(s,'PTP',GET_SMALL_POS)
+
+    move_rel(s,'PTP',(0,0,-60,0,0,0)) #放下夾爪
+
+    if totalneed == 1:
+        grabSlot = [True,False,False]
+    elif totalneed == 2:
+        grabSlot = [True,True,False]
+    else:
+        grabSlot = [True,True,True]
+    
+    move_rel(s,'PTP',(0,0,60,0,0,0)) #抬起夾爪
+    
+    return grabSlot
+
 def placeCube(cubeType):
+    if cubeType == 'LARGE':
+        move_rel(s,'PTP',(0,0,-60,0,0,0)) #放下夾爪
+        move_rel(s,'PTP',(0,0,60,0,0,0)) #抬起夾爪
+
+    elif cubeType[j] == 'MID':
+        move_rel(s,'PTP',(0,0,-60,0,0,0)) #放下夾爪
+        move_rel(s,'PTP',(0,0,60,0,0,0)) #抬起夾爪
+
+    elif cubeType[j] == 'SMALL':
+        move_rel(s,'PTP',(0,0,-60,0,0,0)) #放下夾爪
+        move_rel(s,'PTP',(0,0,60,0,0,0)) #抬起夾爪
+
+def placeCube(cubeType, slotNumber): #for stack
+    move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(slotNumber-1),0,0,0,0,0)) #夾爪偏移
+
     if cubeType == 'LARGE':
         move_rel(s,'PTP',(0,0,-60,0,0,0)) #放下夾爪
         move_rel(s,'PTP',(0,0,60,0,0,0)) #抬起夾爪
@@ -145,26 +187,50 @@ if __name__=='__main__':
                 SORT_SMALL_POS[0] += PUT_CUBE_SMALL_OFFSET #下一個放料位置
 
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
-            
+    
+    move_abs(s,'PTP',READY_POS) #回到預備位置
     gui.show_form()
 
     while gui.isSubmitOrder != True:
         time.sleep(0.1)
 
+    #裝疊
     stackOrder = gui.stackOrder
+    totalNeedCube = [0,0,0] #總共需要的方塊數[large,mid,small]
     print(stackOrder)
 
-    #裝疊
-    totalNeedCube = [0,0,0]
     for i in range(4):
         for j in range(3):
             totalNeedCube[j] += stackOrder[i][j]
     
+    print(totalNeedCube)
+
+    grabSlot = [False,False,False] #夾爪是否有方塊
     
+    for i in range(4):
+        if stackOrder[i][0] == 0: continue
 
+        while stackOrder[i][0] > 0:
+            if all(not slot for slot in grabSlot): #夾爪沒有方塊
+                grabSlot = getcube('LARGE',totalNeedCube[0])
 
+            move_abs(s,'PTP',STACK_POS[i])
+            
+            if grabSlot[0]: #夾爪有方塊
+                placeCube('LARGE',0)
+                grabSlot[0] = False
+            
+            elif grabSlot[1]:
+                placeCube('LARGE',1)
+                grabSlot[1] = False
 
-    #回原點位置
-    move_abs(s,'PTP',HOME_POS)
-    #斷開連接
-    HIWIN_Python.disconnect(s)
+            elif grabSlot[2]:
+                placeCube('LARGE',2)
+                grabSlot[2] = False
+
+            stackOrder[i][0] -= 1
+            totalNeedCube[0] -= 1
+            
+    
+    move_abs(s,'PTP',HOME_POS)#回原點位置
+    HIWIN_Python.disconnect(s)#斷開連接
