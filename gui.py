@@ -1,5 +1,4 @@
 from tkinter import Tk, Label, Button, Spinbox, Frame, Canvas
-import program.finalSort.main as main
 
 # Function to clear the quantities
 def clear_order(order):
