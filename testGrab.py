@@ -14,5 +14,11 @@ def getCubeType():
 
 grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
 time.sleep(2)
-getCubeType()
+
+for i in range(3):
+    getCubeType()
+    grab.write(b'clear\n')
+    grab.write(b'blink\n')
+    time.sleep(2)
+
 grab.close()
