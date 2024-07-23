@@ -8,17 +8,17 @@ import gui
 #基本參數
 speedRate=20
 #groundZ=-193.5 #桌面絕對高度
-GET_CUBE_STEP = 240 #取料步伐
+GET_CUBE_STEP = 250 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
-GRAB_UNIT_OFFSET = 90 #夾爪單位偏移
+GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸
 MID_CUBE_SIZE = 50 #中方塊尺寸
-SMALL_CUBE_SIZE = 30 #小方塊尺寸
+SMALL_CUBE_SIZE = 25 #小方塊尺寸
 
 #分揀參數
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
 
-PUT_CUBE_SMALL_XOFFSET = 40 #放料小X軸偏移
+PUT_CUBE_SMALL_XOFFSET = 35 #放料小X軸偏移
 PUT_CUBE_MID_XOFFSET = 60 #放料中X軸偏移
 PUT_CUBE_LARGE_XOFFSET = 80 #放料大X軸偏移
 
@@ -31,23 +31,23 @@ midPosCounter = [0,0]
 smallPosCounter = [0,0]
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,-180.0  ,0.0  ,90.0] #原點位置
-READY_POS = [0.0   ,470.0  ,90.0  ,-180.0  ,0.0  ,90.0] #預備位置
+READY_POS = [0.0   ,470.0  ,120.0  ,-180.0  ,0.0  ,90.0] #預備位置
 
 #分揀座標
-PLACE_READY_POS = [-320.0   ,414.0  ,-10.0  ,-180.0  ,0.0  ,90.0] #分揀預備位置
-GET_CUBE_POS = [-492.0   ,83.0  ,-60.0  ,-180.0  ,0.0  ,90.0] #來料位置
-SORT_LARGE_POS = [-321.0   ,330.0  ,-50.0  ,-180.0  ,0.0  ,90.0] #分揀位置(大)
-SORT_MID_POS = [-91.0   ,377.0  ,-50.0  ,-180.0  ,0.0  ,90.0] #分揀位置(中)
-SORT_SMALL_POS = [75.0   ,355.0  ,-50.0  ,-180.0  ,0.0  ,90.0] #分揀位置(小)
+PLACE_READY_POS = [-320.0   ,414.0  ,90.0  ,-180.0  ,0.0  ,0.0] #分揀預備位置
+GET_CUBE_POS = [-490.0   ,47.0  ,15.0  ,-180.0  ,0.0  ,90.0] #來料位置
+SORT_LARGE_POS = [-360.0   ,314.0  ,90.0  ,-180.0  ,0.0  ,0.0] #分揀位置(大)
+SORT_MID_POS = [-120.0   ,374.0  ,90.0  ,-180.0  ,0.0  ,0.0] #分揀位置(中)
+SORT_SMALL_POS = [56.0   ,351.0  ,90.0  ,-180.0  ,0.0  ,0.0] #分揀位置(小)
 
 #裝疊座標
-GET_LARGE_POS = [-322.0   ,408.0  ,-50.0  ,-180.0  ,0.0  ,90.0] #取料位置(大)
-GET_MID_POS = [-93.0   ,453.0  ,-50.0  ,-180.0  ,0.0  ,90.0] #取料位置(中)
-GET_SMALL_POS = [78.0   ,436.0  ,-50.0  ,-180.0  ,0.0  ,90.0] #取料位置(小)
-STACK_POS = [[297.0   ,249.0  ,-50.0  ,-180.0  ,0.0  ,90.0], #裝疊位置
-             [297.0   ,390.0  ,-50.0  ,-180.0  ,0.0  ,90.0],
-             [297.0   ,409.0  ,-50.0  ,-180.0  ,0.0  ,90.0],
-             [297.0   ,489.0  ,-50.0  ,-180.0  ,0.0  ,90.0]] 
+GET_LARGE_POS = [-360.0   ,398.0  ,90.0  ,-180.0  ,0.0  ,0.0] #取料位置(大)
+GET_MID_POS = [-120.0   ,453.0  ,90.0  ,-180.0  ,0.0  ,0.0] #取料位置(中)
+GET_SMALL_POS = [56.0   ,431.0  ,90.0  ,-180.0  ,0.0  ,0.0] #取料位置(小)
+STACK_POS = [[297.0   ,193.0  ,90.0  ,-180.0  ,0.0  ,90.0], #裝疊位置
+             [297.0   ,273.0  ,90.0  ,-180.0  ,0.0  ,90.0],
+             [297.0   ,353.0  ,90.0  ,-180.0  ,0.0  ,90.0],
+             [297.0   ,433.0  ,90.0  ,-180.0  ,0.0  ,90.0]] 
 
 
 isSubmitOrder = False
@@ -123,17 +123,17 @@ def getSortedCube(cubeType, totalneed): #for stack
 
     if cubeType == 'LARGE':
         move_abs(s,'PTP',GET_LARGE_POS)
-        moveOffset = 50
+        moveOffset = 80
         GET_LARGE_POS[0] += PUT_CUBE_LARGE_XOFFSET #下一個取料位置
 
     elif cubeType[j] == 'MID':
         move_abs(s,'PTP',GET_MID_POS)
-        moveOffset = 70
+        moveOffset = 100
         GET_MID_POS[0] += PUT_CUBE_MID_XOFFSET #下一個取料位置
 
     elif cubeType[j] == 'SMALL':
         move_abs(s,'PTP',GET_SMALL_POS)
-        moveOffset = 90
+        moveOffset = 125
         GET_SMALL_POS[0] += PUT_CUBE_SMALL_XOFFSET #下一個取料位置
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
@@ -149,7 +149,7 @@ def getSortedCube(cubeType, totalneed): #for stack
         #(啟動電磁閥)
     
     maxStackPosZ = max([pos[2] for pos in STACK_POS])
-    move_rel(s,'PTP',(0,0,maxStackPosZ+moveOffset-150,0,0,0)) #抬起夾爪
+    move_rel(s,'PTP',(0,0,maxStackPosZ+moveOffset-90,0,0,0)) #抬起夾爪
     
     return grabSlot
 
@@ -157,11 +157,11 @@ def placeSourceCube(cubeType):
     moveOffset = 0
 
     if cubeType == 'LARGE':
-       moveOffset = 50
+       moveOffset = 80
     elif cubeType[j] == 'MID':
-       moveOffset = 70
+       moveOffset = 100
     elif cubeType[j] == 'SMALL':
-        moveOffset = 90
+        moveOffset = 125
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
     #(關閉電磁閥)
@@ -172,11 +172,11 @@ def placeSortedCube(cubeType, slotNumber): #for stack
     moveOffset = 0
 
     if cubeType == 'LARGE':
-       moveOffset = 50
+       moveOffset = 80
     elif cubeType[j] == 'MID':
-        moveOffset = 70
+        moveOffset = 100
     elif cubeType[j] == 'SMALL':
-        moveOffset = 90
+        moveOffset = 125
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
     #(關閉電磁閥)
@@ -243,7 +243,6 @@ if __name__=='__main__':
         cubeType = getSourceCube()
         cubeType = ['LARGE','MID','SMALL']
         move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
-        move_rel(s,'PTP',(0,0,0,0,0,-90)) #夾爪轉90度
 
         for j in range(3): #分揀
             if cubeType[j] == 'LARGE':
@@ -265,7 +264,6 @@ if __name__=='__main__':
                 changeSortSmallPos() #下一個放料位置
 
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
-        move_rel(s,'PTP',(0,0,0,0,0,90)) #夾爪轉90度
 
     move_abs(s,'PTP',READY_POS) #回到預備位置
     gui.show_form()
