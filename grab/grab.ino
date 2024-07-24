@@ -30,7 +30,7 @@ void loop() {
             if(distance1 <= 5){ //small
                 digitalWrite(2,1);
                 resultMsg += "small ";
-            }else if(distance1 <= 35){ //mid
+            }else if(distance1 <= 40){ //mid
                 digitalWrite(3,1);
                 resultMsg += "mid ";
             }else{ //large
@@ -41,7 +41,7 @@ void loop() {
             if(distance2 <= 5){ //small
                 digitalWrite(5,1);
                 resultMsg += "small ";
-            }else if(distance2 <= 35){ //mid
+            }else if(distance2 <= 40){ //mid
                 digitalWrite(6,1);
                 resultMsg += "mid ";
             }else{ //large
@@ -52,7 +52,7 @@ void loop() {
             if(distance3 <= 5){ //small
                 digitalWrite(8,1);
                 resultMsg += "small ";
-            }else if(distance3 <= 35){ //mid
+            }else if(distance3 <= 40){ //mid
                 digitalWrite(9,1);
                 resultMsg += "mid ";
             }else{ //large
@@ -71,7 +71,7 @@ void loop() {
             for(int i=2;i<=10;i++){
                 digitalWrite(i,0);
             }
-        } else if (str == "blink") { //LED show color white, indicate stage finish
+        } else if (str == "blink") { //LED show color white, trigger when stage finish
             for(int i=0;i<3;i++){
                 for(int j=2;j<=10;j++){
                     digitalWrite(i,1);

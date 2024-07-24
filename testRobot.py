@@ -1,10 +1,10 @@
 import HIWIN_Python
 import time
 
-speedRate=20
+speedRate=10
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,-180.0  ,0.0  ,90.0] #原點位置
-READY_POS = [0.0   ,470.0  ,90.0  ,-180.0  ,0.0  ,90.0] #預備位置
+READY_POS = [0.0   ,470.0  ,120.0  ,-180.0  ,0.0  ,90.0] #預備位置
 
 #絕對移動
 def move_abs(s ,  mode , position):

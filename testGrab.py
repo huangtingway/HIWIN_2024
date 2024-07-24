@@ -12,13 +12,15 @@ def getCubeType():
     print('接收到的原始資料：', data_raw)
     print('接收到的資料：', data)
 
+#main=========================================================================================================
 grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
 time.sleep(2)
 
 for i in range(3):
     getCubeType()
+    time.sleep(3)
     grab.write(b'clear\n')
-    grab.write(b'blink\n')
-    time.sleep(2)
+    time.sleep(3)
 
+grab.write(b'blink\n')
 grab.close()
