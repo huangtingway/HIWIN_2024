@@ -6,7 +6,7 @@ import ctypes
 import gui
 
 #基本參數
-speedRate=20
+speedRate=10
 #groundZ=-193.5 #桌面絕對高度
 GET_CUBE_STEP = 250 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
@@ -194,8 +194,8 @@ def changeSortLargePos():
         print("Error: large cube overflow")
         os._exit(0)
 
-    SORT_LARGE_POS[1] = 330.0 + largePosCounter[1]*PUT_CUBE_LARGE_YOFFSET
-    SORT_LARGE_POS[0] = -321.0 + largePosCounter[0]*PUT_CUBE_LARGE_XOFFSET
+    SORT_LARGE_POS[1] = 314.0 + largePosCounter[1]*PUT_CUBE_LARGE_YOFFSET
+    SORT_LARGE_POS[0] = -360.0 + largePosCounter[0]*PUT_CUBE_LARGE_XOFFSET
 
 def changeSortMidPos():
     global midPosCounter
@@ -209,8 +209,8 @@ def changeSortMidPos():
         print("Error: mid cube overflow")
         os._exit(0)
 
-    SORT_MID_POS[1] = 377.0 + midPosCounter[1]*PUT_CUBE_MID_YOFFSET
-    SORT_MID_POS[0] = -91.0 + midPosCounter[0]*PUT_CUBE_MID_XOFFSET
+    SORT_MID_POS[1] = 374.0 + midPosCounter[1]*PUT_CUBE_MID_YOFFSET
+    SORT_MID_POS[0] = -120.0 + midPosCounter[0]*PUT_CUBE_MID_XOFFSET
 
 def changeSortSmallPos():
     global smallPosCounter
@@ -224,8 +224,8 @@ def changeSortSmallPos():
         print("Error: small cube overflow")
         os._exit(0)
 
-    SORT_SMALL_POS[1] = 355.0 + smallPosCounter[1]*PUT_CUBE_SMALL_YOFFSET
-    SORT_SMALL_POS[0] = 75.0 + smallPosCounter[0]*PUT_CUBE_SMALL_XOFFSET
+    SORT_SMALL_POS[1] = 351.0 + smallPosCounter[1]*PUT_CUBE_SMALL_YOFFSET
+    SORT_SMALL_POS[0] = 56.0 + smallPosCounter[0]*PUT_CUBE_SMALL_XOFFSET
 
 #MAIN=========================================================================================================
 if __name__=='__main__':
@@ -241,7 +241,7 @@ if __name__=='__main__':
     for i in range(4):
         move_abs(s,'PTP',GET_CUBE_POS) #移動至取料位置
         cubeType = getSourceCube()
-        cubeType = ['LARGE','MID','SMALL']
+        cubeType = ['LARGE','MID','SMALL'] #for test
         move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
 
         for j in range(3): #分揀

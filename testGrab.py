@@ -5,7 +5,7 @@ BAUD_RATES = 9600
 
 def getCubeType():
     grab.write(b'getType\n')
-    time.sleep(0.5)
+    time.sleep(0.2)
 
     data_raw = grab.readline()  # 讀取一行
     data = data_raw.decode()   # 用預設的UTF-8解碼

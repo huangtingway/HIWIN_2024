@@ -60,8 +60,8 @@ void loop() {
                 resultMsg += "large ";
             }
 
-            // Serial.println(resultMsg); //for test
-            // Serial.print(distance1);
+             Serial.println(resultMsg); 
+            // Serial.print(distance1);//for test
             // Serial.print(" ");
             // Serial.print(distance2);
             // Serial.print(" ");
@@ -71,6 +71,7 @@ void loop() {
             for(int i=2;i<=10;i++){
                 digitalWrite(i,0);
             }
+
         } else if (str == "blink") { //LED show color white, trigger when stage finish
             for(int i=0;i<3;i++){
                 for(int j=2;j<=10;j++){
