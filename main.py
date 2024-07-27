@@ -6,7 +6,7 @@ import ctypes
 import gui
 
 #基本參數
-speedRate=40
+speedRate=30
 #groundZ=-193.5 #桌面絕對高度
 GET_CUBE_STEP = 250 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
@@ -14,6 +14,8 @@ GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸
 MID_CUBE_SIZE = 50 #中方塊尺寸
 SMALL_CUBE_SIZE = 25 #小方塊尺寸
+SLOT_IO_INDEX = [1,2,3] #IO
+START_BUTTON_IO_INDEX = 1 #按鈕IO
 
 #分揀參數
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
@@ -109,54 +111,48 @@ def move_rel(s ,  mode , position):
     print(f"Move rel ({position[0]},{position[1]},{position[2]})")
 
 def getCubeType():
-    pass
+    global grab
+    grab.write(b'getType\n')
+    time.sleep(0.2)
+
+    data_raw = grab.readline()  # 讀取一行
+    data = data_raw.decode()   # 用預設的UTF-8解碼
+    data = data.split(' ')
+    print('夾爪辨識：', data)
+    return data
 
 def getSourceCube():
     move_rel(s,'PTP',(0,0,GET_CUBE_STEP*-1,0,0,0)) #放下夾爪
     cubeType = getCubeType() #取得方塊類型
-    #(啟動電磁閥)
+    HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], 1) # Open slot IO 1#啟動電磁閥
+    HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], 1) # Open slot IO 2
+    HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], 1) # Open slot IO 3
+    time.sleep(0.1)
     move_rel(s,'PTP',(0,0,GET_CUBE_STEP,0,0,0)) #抬起夾爪
     return cubeType
 
-def getSortedCube(cubeType, totalneed): #for stack
-    grabSlot = [False,False,False] #夾爪是否有方塊
+def getSortedCube(cubeType, grabSlotNumber): #for stack
     moveOffset = 0
-
-    if totalneed == 0: return grabSlot
+    move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(grabSlotNumber-1),0,0,0,0,0)) #夾爪偏移
 
     if cubeType == 'LARGE':
         move_abs(s,'PTP',GET_LARGE_POS)
         moveOffset = 80
-        GET_LARGE_POS[0] += PUT_CUBE_LARGE_XOFFSET #下一個取料位置
 
     elif cubeType[j] == 'MID':
         move_abs(s,'PTP',GET_MID_POS)
         moveOffset = 100
-        GET_MID_POS[0] += PUT_CUBE_MID_XOFFSET #下一個取料位置
 
     elif cubeType[j] == 'SMALL':
         move_abs(s,'PTP',GET_SMALL_POS)
         moveOffset = 125
-        GET_SMALL_POS[0] += PUT_CUBE_SMALL_XOFFSET #下一個取料位置
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
-
-    if totalneed == 1:
-        grabSlot = [True,False,False]
-        #(啟動電磁閥)
-    elif totalneed == 2:
-        grabSlot = [True,True,False]
-        #(啟動電磁閥)
-    else:
-        grabSlot = [True,True,True]
-        #(啟動電磁閥)
-    
+    HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[grabSlotNumber], 1) #開啟電磁閥
     maxStackPosZ = max([pos[2] for pos in STACK_POS])
     move_rel(s,'PTP',(0,0,maxStackPosZ+moveOffset-90,0,0,0)) #抬起夾爪
-    
-    return grabSlot
 
-def placeSourceCube(cubeType):
+def placeSourceCube(cubeType, slotNumber):
     moveOffset = 0
 
     if cubeType == 'LARGE':
@@ -167,7 +163,8 @@ def placeSourceCube(cubeType):
         moveOffset = 125
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
-    #(關閉電磁閥)
+    HIWIN_Python.set_digital_output(s, slotNumber, 0) #關閉電磁閥
+    time.sleep(0.1)
     move_rel(s,'PTP',(0,0,moveOffset,0,0,0)) #抬起夾爪
 
 def placeSortedCube(cubeType, slotNumber): #for stack
@@ -182,27 +179,33 @@ def placeSortedCube(cubeType, slotNumber): #for stack
         moveOffset = 125
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
-    #(關閉電磁閥)
-    move_rel(s,'PTP',(0,0,moveOffset,0,0,0)) #抬起夾爪
+    HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[slotNumber], 0) #關閉電磁閥
+    time.sleep(0.1)
+    move_rel(s,'PTP',(0,0,moveOffset*2,0,0,0)) #抬起夾爪
 
-def changeSortLargePos():
+def changeLargePos(offset):
     global largePosCounter
-    largePosCounter[1] += 1
+    largePosCounter[1] += offset
 
     if largePosCounter[1] == 3:
         largePosCounter[1] = 0
         largePosCounter[0] += 1
 
-    if largePosCounter[0] == 4:
+    if largePosCounter[1] < 0:
+        largePosCounter[1] = 2
+        largePosCounter[0] -= 1
+
+    if largePosCounter[0] == 4 or largePosCounter[0] == -1:
         print("Error: large cube overflow")
         os._exit(0)
 
     SORT_LARGE_POS[1] = 314.0 + largePosCounter[1]*PUT_CUBE_LARGE_YOFFSET
     SORT_LARGE_POS[0] = -360.0 + largePosCounter[0]*PUT_CUBE_LARGE_XOFFSET
+    print(f"largePosCounter:{largePosCounter}")
 
-def changeSortMidPos():
+def changeMidPos(offset):
     global midPosCounter
-    midPosCounter[1] += 1
+    midPosCounter[1] += offset
 
     if midPosCounter[1] == 3:
         midPosCounter[1] = 0
@@ -214,10 +217,11 @@ def changeSortMidPos():
 
     SORT_MID_POS[1] = 374.0 + midPosCounter[1]*PUT_CUBE_MID_YOFFSET
     SORT_MID_POS[0] = -120.0 + midPosCounter[0]*PUT_CUBE_MID_XOFFSET
+    print(f"midPosCounter:{midPosCounter}")
 
-def changeSortSmallPos():
+def changeSmallPos(offset):
     global smallPosCounter
-    smallPosCounter[1] += 1
+    smallPosCounter[1] += offset
 
     if smallPosCounter[1] == 3:
         smallPosCounter[1] = 0
@@ -229,12 +233,18 @@ def changeSortSmallPos():
 
     SORT_SMALL_POS[1] = 351.0 + smallPosCounter[1]*PUT_CUBE_SMALL_YOFFSET
     SORT_SMALL_POS[0] = 56.0 + smallPosCounter[0]*PUT_CUBE_SMALL_XOFFSET
+    print(f"smallPosCounter:{smallPosCounter}")
 
 #MAIN=========================================================================================================
 if __name__=='__main__':
+    global grab
     #grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
     time.sleep(2)
+    #grab.write(b'blink\n')
     s = init()
+
+    # while HIWIN_Python.get_digital_input(s,START_BUTTON_IO_INDEX) == 0: #等待按鈕
+    #     time.sleep(0.1)
 
     input('預備執行任務，請按任意鍵繼續')
     move_abs(s ,  'PTP' , READY_POS)
@@ -242,6 +252,7 @@ if __name__=='__main__':
 
     #分揀-----------------------------------------------------------------------------------------------
     for i in range(4):
+        #grab.write(b'clear\n') #清除夾爪
         move_abs(s,'PTP',GET_CUBE_POS) #移動至取料位置
         cubeType = getSourceCube()
         cubeType = ['LARGE','MID','SMALL'] #for test
@@ -251,67 +262,73 @@ if __name__=='__main__':
             if cubeType[j] == 'LARGE':
                 move_abs(s,'PTP',SORT_LARGE_POS)
                 move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(j-1),0,0,0,0,0)) #夾爪偏移
-                placeSourceCube('LARGE')
-                changeSortLargePos() #下一個放料位置
+                placeSourceCube('LARGE',SLOT_IO_INDEX[j])
+                changeLargePos(1) #下一個放料位置
 
             elif cubeType[j] == 'MID':
                 move_abs(s,'PTP',SORT_MID_POS)
                 move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(j-1),0,0,0,0,0)) #夾爪偏移
-                placeSourceCube('MID')
-                changeSortMidPos() #下一個放料位置
+                placeSourceCube('MID',SLOT_IO_INDEX[j])
+                changeMidPos(1) #下一個放料位置
 
             elif cubeType[j] == 'SMALL':
                 move_abs(s,'PTP',SORT_SMALL_POS)
                 move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(j-1),0,0,0,0,0)) #夾爪偏移
-                placeSourceCube('SMALL')
-                changeSortSmallPos() #下一個放料位置
+                placeSourceCube('SMALL',SLOT_IO_INDEX[j])
+                changeSmallPos(1) #下一個放料位置
 
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
 
     move_abs(s,'PTP',READY_POS) #回到預備位置
+    #grab.write(b'blink\n') #夾爪閃爍
     gui.show_form()
 
     while gui.isSubmitOrder != True:
         time.sleep(0.1)
 
     #裝疊-----------------------------------------------------------------------------------------------
-    # stackOrder = gui.stackOrder
-    # totalNeedCube = [0,0,0] #總共需要的方塊數[large,mid,small]
-    # print(stackOrder)
-
-    # for i in range(4):
-    #     for j in range(3):
-    #         totalNeedCube[j] += stackOrder[i][j]
+    stackOrder = gui.stackOrder
+    print(stackOrder)
+    slotCubeType = ["SMALL","SMALL","SMALL"]
     
-    # print(totalNeedCube)
+    for i in range(4): #iterate through 4 orders
+        #取得方塊
+        for j in range(3): #iterate through 3 slots
+            if stackOrder[i][0] > 0:
+                move_abs(s,'PTP',GET_LARGE_POS) 
+                getSortedCube('LARGE',j)
+                stackOrder[i][0] -= 1
+                changeLargePos(-1)
+                slotCubeType[j] = "LARGE"
 
-    # grabSlot = [False,False,False] #夾爪是否有方塊
+            elif stackOrder[i][1] > 0:
+                move_abs(s,'PTP',GET_MID_POS) 
+                getSortedCube('MID',j)
+                stackOrder[i][1] -= 1
+                changeMidPos(-1)
+                slotCubeType[j] = "MID"
+
+            elif stackOrder[i][2] > 0:
+                move_abs(s,'PTP',GET_SMALL_POS) 
+                getSortedCube('SMALL',j)
+                stackOrder[i][2] -= 1
+                changeSmallPos(-1)
+                slotCubeType[j] = "SMALL"
+
+        #放置方塊
+        for j in range(3):
+            move_abs(s,'PTP',STACK_POS[i])
+
+            if slotCubeType[j] == 'LARGE':
+                placeSortedCube('LARGE',j)
+                STACK_POS[2] += 70 
+            elif slotCubeType[j] == 'MID':
+                placeSortedCube('MID',j)
+                STACK_POS[2] += 50 
+            elif slotCubeType[j] == 'SMALL':
+                placeSortedCube('SMALL',j)
+                STACK_POS[2] += 25 
     
-    # for i in range(4):
-    #     if stackOrder[i][0] == 0: continue
-
-    #     while stackOrder[i][0] > 0:
-    #         if all(not slot for slot in grabSlot): #夾爪沒有方塊
-    #             grabSlot = getSortedCube('LARGE',totalNeedCube[0])
-
-    #         move_abs(s,'PTP',STACK_POS[i])
-            
-    #         if grabSlot[0]: #夾爪有方塊
-    #             placeSortedCube('LARGE',0)
-    #             grabSlot[0] = False
-            
-    #         elif grabSlot[1]:
-    #             placeSortedCube('LARGE',1)
-    #             grabSlot[1] = False
-
-    #         elif grabSlot[2]:
-    #             placeSortedCube('LARGE',2)
-    #             grabSlot[2] = False
-
-    #         stackOrder[i][0] -= 1
-    #         totalNeedCube[0] -= 1
-    #         STACK_POS[i][2] += LARGE_CUBE_SIZE #下一個放料位置
-            
-    
+    #grab.write(b'blink\n') #夾爪閃爍
     move_abs(s,'PTP',HOME_POS)#回原點位置
     HIWIN_Python.disconnect(s)#斷開連接
