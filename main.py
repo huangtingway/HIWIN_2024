@@ -6,7 +6,7 @@ import ctypes
 import gui
 
 #基本參數
-speedRate=10
+speedRate=40
 #groundZ=-193.5 #桌面絕對高度
 GET_CUBE_STEP = 250 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
@@ -57,9 +57,9 @@ COM_PORT = 'COM6'
 BAUD_RATES = 9600
 
 def init():
-    s=HIWIN_Python.connect_robot("127.0.0.1",1) #連線
+    s=HIWIN_Python.connect_robot("192.168.0.2",1) #連線
     HIWIN_Python.clear_alarm(s)
-    time.sleep(0.5)
+    time.sleep(0.3)
 
     HIWIN_Python.set_connection_level(s,1)
     HIWIN_Python.set_operation_mode(s,0) #0自動,1手動
@@ -67,6 +67,9 @@ def init():
     #設定速度
     HIWIN_Python.set_lin_speed_edited(s,50) #設定直線運動速度 int set_lin_speed(HROBOT robot, double value),value=mm/s
     HIWIN_Python.set_ptp_speed(s,speedRate) #設定直線運動速度 int set_lin_speed(HROBOT robot, double value),value=mm/s
+    HIWIN_Python.set_motor_state(s,1) #啟動馬達
+    time.sleep(0.3)
+
     #設定移動%
     HIWIN_Python.set_override_ratio(s,speedRate) #設定整體速度 int set_override_ratio(HROBOT robot, double value)#整體速度比例:1-100(%)
     move_abs(s ,  'PTP' , HOME_POS)
@@ -272,42 +275,42 @@ if __name__=='__main__':
         time.sleep(0.1)
 
     #裝疊-----------------------------------------------------------------------------------------------
-    stackOrder = gui.stackOrder
-    totalNeedCube = [0,0,0] #總共需要的方塊數[large,mid,small]
-    print(stackOrder)
+    # stackOrder = gui.stackOrder
+    # totalNeedCube = [0,0,0] #總共需要的方塊數[large,mid,small]
+    # print(stackOrder)
 
-    for i in range(4):
-        for j in range(3):
-            totalNeedCube[j] += stackOrder[i][j]
+    # for i in range(4):
+    #     for j in range(3):
+    #         totalNeedCube[j] += stackOrder[i][j]
     
-    print(totalNeedCube)
+    # print(totalNeedCube)
 
-    grabSlot = [False,False,False] #夾爪是否有方塊
+    # grabSlot = [False,False,False] #夾爪是否有方塊
     
-    for i in range(4):
-        if stackOrder[i][0] == 0: continue
+    # for i in range(4):
+    #     if stackOrder[i][0] == 0: continue
 
-        while stackOrder[i][0] > 0:
-            if all(not slot for slot in grabSlot): #夾爪沒有方塊
-                grabSlot = getSortedCube('LARGE',totalNeedCube[0])
+    #     while stackOrder[i][0] > 0:
+    #         if all(not slot for slot in grabSlot): #夾爪沒有方塊
+    #             grabSlot = getSortedCube('LARGE',totalNeedCube[0])
 
-            move_abs(s,'PTP',STACK_POS[i])
+    #         move_abs(s,'PTP',STACK_POS[i])
             
-            if grabSlot[0]: #夾爪有方塊
-                placeSortedCube('LARGE',0)
-                grabSlot[0] = False
+    #         if grabSlot[0]: #夾爪有方塊
+    #             placeSortedCube('LARGE',0)
+    #             grabSlot[0] = False
             
-            elif grabSlot[1]:
-                placeSortedCube('LARGE',1)
-                grabSlot[1] = False
+    #         elif grabSlot[1]:
+    #             placeSortedCube('LARGE',1)
+    #             grabSlot[1] = False
 
-            elif grabSlot[2]:
-                placeSortedCube('LARGE',2)
-                grabSlot[2] = False
+    #         elif grabSlot[2]:
+    #             placeSortedCube('LARGE',2)
+    #             grabSlot[2] = False
 
-            stackOrder[i][0] -= 1
-            totalNeedCube[0] -= 1
-            STACK_POS[i][2] += LARGE_CUBE_SIZE #下一個放料位置
+    #         stackOrder[i][0] -= 1
+    #         totalNeedCube[0] -= 1
+    #         STACK_POS[i][2] += LARGE_CUBE_SIZE #下一個放料位置
             
     
     move_abs(s,'PTP',HOME_POS)#回原點位置

@@ -1,6 +1,6 @@
 import serial
 import time
-COM_PORT = 'COM6'
+COM_PORT = 'COM5'
 BAUD_RATES = 9600
 
 def getCubeType():
@@ -23,4 +23,5 @@ for i in range(3):
     time.sleep(3)
 
 grab.write(b'blink\n')
+time.sleep(1)
 grab.close()
