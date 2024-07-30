@@ -6,7 +6,7 @@ import ctypes
 import gui
 
 #基本參數
-speedRate=30
+speedRate=100
 #groundZ=-193.5 #桌面絕對高度
 GET_CUBE_STEP = 250 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
@@ -14,8 +14,8 @@ GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸
 MID_CUBE_SIZE = 50 #中方塊尺寸
 SMALL_CUBE_SIZE = 25 #小方塊尺寸
-SLOT_IO_INDEX = [1,2,3] #IO
-START_BUTTON_IO_INDEX = 1 #按鈕IO
+SLOT_IO_INDEX = [9,10,11] #IO
+START_BUTTON_IO_INDEX = 9 #按鈕IO
 
 #分揀參數
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
@@ -36,7 +36,7 @@ HOME_POS = [0.0   ,368.0  ,293.5  ,-180.0  ,0.0  ,90.0] #原點位置
 READY_POS = [0.0   ,470.0  ,130.0  ,-180.0  ,0.0  ,90.0] #預備位置
 
 #分揀座標
-PLACE_READY_POS = [-320.0   ,414.0  ,130.0  ,-180.0  ,0.0  ,0.0] #分揀預備位置
+PLACE_READY_POS = [-320.0   ,414.0  ,130.0  ,-180.0  ,0.0  ,180.0] #分揀預備位置
 GET_CUBE_POS = [-490.0   ,50.0  ,15.0  ,-180.0  ,0.0  ,90.0] #來料位置
 SORT_LARGE_POS = [-283.0   ,314.0  ,130.0  ,-180.0  ,0.0  ,180.0] #分揀位置(大)
 SORT_MID_POS = [-42.0   ,374.0  ,130.0  ,-180.0  ,0.0  ,180.0] #分揀位置(中)
@@ -56,17 +56,19 @@ COM_PORT = 'COM6'
 BAUD_RATES = 9600
 
 def init():
-    s=HIWIN_Python.connect_robot("127.0.0.1",1) #連線
+    s=HIWIN_Python.connect_robot("192.168.0.2",1) #連線
     HIWIN_Python.clear_alarm(s)
     time.sleep(0.3)
 
     HIWIN_Python.set_connection_level(s,1)
     HIWIN_Python.set_operation_mode(s,0) #0自動,1手動
+    HIWIN_Python.set_motor_state(s,1) #啟動馬達
+    time.sleep(0.3)
 
     #設定速度
     HIWIN_Python.set_lin_speed_edited(s,50) #設定直線運動速度 int set_lin_speed(HROBOT robot, double value),value=mm/s
     HIWIN_Python.set_ptp_speed(s,speedRate) #設定直線運動速度 int set_lin_speed(HROBOT robot, double value),value=mm/s
-    HIWIN_Python.set_motor_state(s,1) #啟動馬達
+    HIWIN_Python.set_acc_dec_ratio(100)
     time.sleep(0.3)
 
     #設定移動%
@@ -136,10 +138,10 @@ def getSortedCube(cubeType, grabSlotNumber): #for stack
     if cubeType == 'LARGE':
         moveOffset = 80
 
-    elif cubeType[j] == 'MID':
+    elif cubeType == 'MID':
         moveOffset = 100
 
-    elif cubeType[j] == 'SMALL':
+    elif cubeType == 'SMALL':
         moveOffset = 125
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
@@ -151,9 +153,9 @@ def placeSourceCube(cubeType, slotNumber):
 
     if cubeType == 'LARGE':
        moveOffset = 80
-    elif cubeType[j] == 'MID':
+    elif cubeType == 'MID':
        moveOffset = 100
-    elif cubeType[j] == 'SMALL':
+    elif cubeType == 'SMALL':
         moveOffset = 125
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
@@ -167,9 +169,9 @@ def placeSortedCube(cubeType, slotNumber): #for stack
 
     if cubeType == 'LARGE':
        moveOffset = 80
-    elif cubeType[j] == 'MID':
+    elif cubeType == 'MID':
         moveOffset = 100
-    elif cubeType[j] == 'SMALL':
+    elif cubeType == 'SMALL':
         moveOffset = 125
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
@@ -244,6 +246,7 @@ if __name__=='__main__':
     #grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
     time.sleep(2)
     #grab.write(b'blink\n')
+    time.sleep(2)
     s = init()
 
     # while HIWIN_Python.get_digital_input(s,START_BUTTON_IO_INDEX) == 0: #等待按鈕
@@ -339,5 +342,6 @@ if __name__=='__main__':
     
     print(f"-----------------------------\nfinish stacking\n")
     #grab.write(b'blink\n') #夾爪閃爍
+    time.sleep(2)
     move_abs(s,'PTP',HOME_POS)#回原點位置
     HIWIN_Python.disconnect(s)#斷開連接

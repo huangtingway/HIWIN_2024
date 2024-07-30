@@ -1,6 +1,6 @@
 import serial
 import time
-COM_PORT = 'COM5'
+COM_PORT = 'COM6'
 BAUD_RATES = 9600
 
 def getCubeType():
@@ -19,6 +19,8 @@ if __name__=='__main__':
     global grab
     grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
     time.sleep(2)
+    grab.write(b'blink\n')
+    time.sleep(2)
 
     for i in range(3):
         getCubeType()
@@ -27,5 +29,5 @@ if __name__=='__main__':
         time.sleep(3)
 
     grab.write(b'blink\n')
-    time.sleep(1)
+    time.sleep(2)
     grab.close()

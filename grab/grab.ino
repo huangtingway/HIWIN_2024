@@ -75,16 +75,16 @@ void loop() {
         } else if (str == "blink") { //LED show color white, trigger when stage finish
             for(int i=0;i<3;i++){
                 for(int j=2;j<=10;j++){
-                  digitalWrite(i,1);
+                  digitalWrite(j,1);
                 }
 
-                delay(120);
+                delay(150);
 
                 for(int j=2;j<=10;j++){
-                    digitalWrite(i,0);
+                    digitalWrite(j,0);
                 }
 
-                delay(80);
+                delay(100);
             }
         }
     }

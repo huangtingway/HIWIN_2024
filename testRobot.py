@@ -6,9 +6,9 @@ speedRate=30
 HOME_POS = [0.0   ,368.0  ,293.5  ,-180.0  ,0.0  ,90.0] #原點位置
 READY_POS = [0.0   ,470.0  ,120.0  ,-180.0  ,0.0  ,90.0] #預備位置
 
-SLOT1_IO_INDEX = 1 #IO1
-SLOT2_IO_INDEX = 2 #IO2
-SLOT3_IO_INDEX = 3 #IO3
+SLOT1_IO_INDEX = 9 #IO1
+SLOT2_IO_INDEX = 10 #IO2
+SLOT3_IO_INDEX = 11 #IO3
 
 #絕對移動
 def move_abs(s ,  mode , position):
@@ -51,18 +51,18 @@ if __name__=='__main__':
     move_abs(s ,  'PTP' , READY_POS)
 
     #電磁閥控制
-    HIWIN_Python.set_digital_output(s, SLOT1_IO_INDEX, 1) #開啟電磁閥
+    HIWIN_Python.set_digital_output(s, SLOT1_IO_INDEX, True) #開啟電磁閥
     time.sleep(1)
-    HIWIN_Python.set_digital_output(s, SLOT2_IO_INDEX, 1) #開啟電磁閥
+    HIWIN_Python.set_digital_output(s, SLOT2_IO_INDEX, True) #開啟電磁閥
     time.sleep(1)
-    HIWIN_Python.set_digital_output(s, SLOT3_IO_INDEX, 1) #開啟電磁閥
-    time.sleep(3)
+    HIWIN_Python.set_digital_output(s, SLOT3_IO_INDEX, True) #開啟電磁閥
+    time.sleep(2)
 
-    HIWIN_Python.set_digital_output(s, SLOT1_IO_INDEX, 0) #關閉電磁閥
+    HIWIN_Python.set_digital_output(s, SLOT1_IO_INDEX, False) #關閉電磁閥
     time.sleep(1)
-    HIWIN_Python.set_digital_output(s, SLOT2_IO_INDEX, 0) #關閉電磁閥
+    HIWIN_Python.set_digital_output(s, SLOT2_IO_INDEX, False) #關閉電磁閥
     time.sleep(1)
-    HIWIN_Python.set_digital_output(s, SLOT3_IO_INDEX, 0) #關閉電磁閥
+    HIWIN_Python.set_digital_output(s, SLOT3_IO_INDEX, False) #關閉電磁閥
 
     move_abs(s ,  'PTP' , HOME_POS)
     HIWIN_Python.disconnect(s)
