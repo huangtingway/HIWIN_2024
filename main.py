@@ -6,22 +6,23 @@ import ctypes
 import gui
 
 #基本參數
+IP = "127.0.0.1"
 speedRate=100
 #groundZ=-193.5 #桌面絕對高度
 GET_CUBE_STEP = 250 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
 GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸
-MID_CUBE_SIZE = 50 #中方塊尺寸
-SMALL_CUBE_SIZE = 25 #小方塊尺寸
+MID_CUBE_SIZE = 55 #中方塊尺寸
+SMALL_CUBE_SIZE = 30 #小方塊尺寸
 SLOT_IO_INDEX = [9,10,11] #IO
 START_BUTTON_IO_INDEX = 9 #按鈕IO
 
 #分揀參數
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
 
-PUT_CUBE_SMALL_XOFFSET = 35 #放料小X軸偏移
-PUT_CUBE_MID_XOFFSET = 60 #放料中X軸偏移
+PUT_CUBE_SMALL_XOFFSET = 60 #放料小X軸偏移
+PUT_CUBE_MID_XOFFSET = 72.5 #放料中X軸偏移
 PUT_CUBE_LARGE_XOFFSET = 80 #放料大X軸偏移
 
 PUT_CUBE_SMALL_YOFFSET = 80 #放料小Y軸偏移
@@ -56,7 +57,7 @@ COM_PORT = 'COM6'
 BAUD_RATES = 9600
 
 def init():
-    s=HIWIN_Python.connect_robot("192.168.0.2",1) #連線
+    s=HIWIN_Python.connect_robot(IP,1) #連線
     HIWIN_Python.clear_alarm(s)
     time.sleep(0.3)
 
@@ -68,7 +69,7 @@ def init():
     #設定速度
     HIWIN_Python.set_lin_speed_edited(s,50) #設定直線運動速度 int set_lin_speed(HROBOT robot, double value),value=mm/s
     HIWIN_Python.set_ptp_speed(s,speedRate) #設定直線運動速度 int set_lin_speed(HROBOT robot, double value),value=mm/s
-    HIWIN_Python.set_acc_dec_ratio(100)
+    HIWIN_Python.set_acc_dec_ratio(s,100)
     time.sleep(0.3)
 
     #設定移動%
@@ -219,7 +220,6 @@ def changeMidPos(offset):
     SORT_MID_POS[0] = -42.0 + midPosCounter[0]*PUT_CUBE_MID_XOFFSET
     print(f"midPosCounter:{midPosCounter}")
 
-
 def changeSmallPos(offset):
     global smallPosCounter
     smallPosCounter[1] += offset
@@ -240,8 +240,19 @@ def changeSmallPos(offset):
     SORT_SMALL_POS[0] = 134.0 + smallPosCounter[0]*PUT_CUBE_SMALL_XOFFSET
     print(f"smallPosCounter:{smallPosCounter}")
 
+def checkOrderVaild(order):
+    if sum(order) == 0 or sum(order) > 3:
+        print("Error: invalid order")
+        return False
+    return True
+
 #MAIN=========================================================================================================
 if __name__=='__main__':
+    gui.show_form()
+
+    while gui.isSubmitOrder != True:
+        time.sleep(0.1)
+
     global grab
     #grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
     time.sleep(2)
@@ -252,8 +263,6 @@ if __name__=='__main__':
     # while HIWIN_Python.get_digital_input(s,START_BUTTON_IO_INDEX) == 0: #等待按鈕
     #     time.sleep(0.1)
 
-    input('預備執行任務，請按任意鍵繼續')
-    move_abs(s ,  'PTP' , READY_POS)
     input('開始執行任務，請按任意鍵繼續')
 
     #分揀-----------------------------------------------------------------------------------------------
@@ -268,21 +277,21 @@ if __name__=='__main__':
             if cubeType[j] == 'LARGE':
                 print(f"\nsort \'large\' cube slot:{j}")
                 move_abs(s,'PTP',SORT_LARGE_POS)
-                move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(j-1),0,0,0,0,0)) #夾爪偏移
+                move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(j-1),0,0,0,0)) #夾爪偏移
                 placeSourceCube('LARGE',SLOT_IO_INDEX[j])
                 changeLargePos(1) #下一個放料位置
 
             elif cubeType[j] == 'MID':
                 print(f"\nsort \'mid\' cube slot:{j}")
                 move_abs(s,'PTP',SORT_MID_POS)
-                move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(j-1),0,0,0,0,0)) #夾爪偏移
+                move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(j-1),0,0,0,0)) #夾爪偏移
                 placeSourceCube('MID',SLOT_IO_INDEX[j])
                 changeMidPos(1) #下一個放料位置
 
             elif cubeType[j] == 'SMALL':
                 print(f"\nsort \'small\' cube slot:{j}")
                 move_abs(s,'PTP',SORT_SMALL_POS)
-                move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(j-1),0,0,0,0,0)) #夾爪偏移
+                move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(j-1),0,0,0,0)) #夾爪偏移
                 placeSourceCube('SMALL',SLOT_IO_INDEX[j])
                 changeSmallPos(1) #下一個放料位置
 
@@ -290,12 +299,9 @@ if __name__=='__main__':
         #grab.write(b'clear\n') #清除夾爪
 
     print(f"-----------------------------\nfinish sorting\n")
-    move_abs(s,'PTP',READY_POS) #回到預備位置
+    move_abs(s,'PTP',HOME_POS) #回到預備位置
     #grab.write(b'blink\n') #夾爪閃爍
-    gui.show_form()
-
-    while gui.isSubmitOrder != True:
-        time.sleep(0.1)
+    time.sleep(2)
 
     #裝疊-----------------------------------------------------------------------------------------------
     stackOrder = gui.stackOrder
@@ -303,6 +309,8 @@ if __name__=='__main__':
     
     for i in range(4): #iterate through 4 orders
         print(f"-----------------------------\nstart stackOrder {i}:{stackOrder[i]}")
+        if(checkOrderVaild(stackOrder[i]) == False): continue
+
         while sum(stackOrder[i]) > 0:
             # 取得方塊
             for j in range(2, -1, -1):  # iterate through 3 slots
