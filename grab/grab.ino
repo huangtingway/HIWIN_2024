@@ -1,3 +1,5 @@
+bool isTouchTable = false;
+
 void setup() {
     Serial.begin(9600);
     pinMode(2, OUTPUT); //slot1 R
@@ -15,8 +17,9 @@ void setup() {
     pinMode(A1, INPUT); //slot1
     pinMode(A2, INPUT); //slot2
     pinMode(A3, INPUT); //slot3
-}
 
+    pinMode(11,INPUT);
+}
 void loop() {
     if (Serial.available()) {
         String str = Serial.readStringUntil('\n');// 讀取傳入的字串直到"\n"結尾
@@ -29,35 +32,35 @@ void loop() {
 
             if(distance1 <= 5){ //small
                 digitalWrite(2,1);
-                resultMsg += "small ";
+                resultMsg += "SMALL ";
             }else if(distance1 <= 40){ //mid
                 digitalWrite(3,1);
-                resultMsg += "mid ";
+                resultMsg += "MID ";
             }else{ //large
                 digitalWrite(4,1);
-                resultMsg += "large ";
+                resultMsg += "LARGE ";
             }
 
             if(distance2 <= 5){ //small
                 digitalWrite(5,1);
-                resultMsg += "small ";
+                resultMsg += "SMALL ";
             }else if(distance2 <= 40){ //mid
                 digitalWrite(6,1);
-                resultMsg += "mid ";
+                resultMsg += "MID ";
             }else{ //large
                 digitalWrite(7,1);
-                resultMsg += "large ";
+                resultMsg += "LARGE ";
             }
 
             if(distance3 <= 5){ //small
                 digitalWrite(8,1);
-                resultMsg += "small ";
+                resultMsg += "SMALL ";
             }else if(distance3 <= 40){ //mid
                 digitalWrite(9,1);
-                resultMsg += "mid ";
+                resultMsg += "MID ";
             }else{ //large
                 digitalWrite(10,1);
-                resultMsg += "large ";
+                resultMsg += "LARGE ";
             }
 
              Serial.println(resultMsg); 
@@ -86,7 +89,17 @@ void loop() {
 
                 delay(100);
             }
+        }else if (str == "testHeight") {
+            if(digitalRead(11) == 1){
+              isTouchTable = true;
+            }
+
+            if(isTouchTable){
+              Serial.println("stop"); 
+            }else{
+              Serial.println("empty");
+            }
         }
     }
-
+  
 }
