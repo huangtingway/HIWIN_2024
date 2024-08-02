@@ -7,7 +7,7 @@ import gui
 
 #基本參數
 IP = "192.168.0.2"
-speedRate= 80 #速度比例
+speedRate= 60 #速度比例
 #groundZ=-193.5 #桌面絕對高度
 GET_CUBE_STEP = 80 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
@@ -20,7 +20,6 @@ START_BUTTON_IO_INDEX = 9 #按鈕IO
 
 #分揀參數
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
-
 PUT_CUBE_SMALL_XOFFSET = 60 #放料小X軸偏移
 PUT_CUBE_MID_XOFFSET = 72.5 #放料中X軸偏移
 PUT_CUBE_LARGE_XOFFSET = 80 #放料大X軸偏移
@@ -37,12 +36,12 @@ HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
 READY_POS = [0.0   ,470.0  ,130.0  ,180.0  ,0.0  ,90.0] #預備位置
 
 #分揀座標
-GET_CUBE_READY_POS = [-520.0   ,-60.0  ,60.0  ,180.0  ,0.0  ,90.0] #取料預備位置
-GET_CUBE_POS = [-520.0   ,-200.0  ,-130.0  ,180.0  ,0.0  ,90.0] #來料位置
-PLACE_READY_POS = [-320.0   ,414.0  ,130.0  ,180.0  ,0.0  ,180.0] #分揀預備位置
-SORT_LARGE_POS = [-283.0   ,314.0  ,130.0  ,180.0  ,0.0  ,180.0] #分揀位置(大)
-SORT_MID_POS = [-42.0   ,374.0  ,130.0  ,180.0  ,0.0  ,180.0] #分揀位置(中)
-SORT_SMALL_POS = [134.0   ,351.0  ,130.0  ,180.0  ,0.0 , 180.0] #分揀位置(小)
+GET_CUBE_READY_POS = [-550.0   ,-80.0  ,60.0  ,180.0  ,0.0  ,90.0] #取料預備位置
+GET_CUBE_POS = [-550.0   ,-250.0  ,-130.0  ,180.0  ,0.0  ,90.0] #來料位置
+PLACE_READY_POS = [-320.0   ,414.0  ,125.0  ,180.0  ,0.0  ,-180.0] #分揀預備位置
+SORT_LARGE_POS = [-283.0   ,314.0  ,125.0  ,180.0  ,0.0  ,-180.0] #分揀位置(大)
+SORT_MID_POS = [-42.0   ,374.0  ,125.0  ,180.0  ,0.0  ,-180.0] #分揀位置(中)
+SORT_SMALL_POS = [134.0   ,351.0  ,125.0  ,180.0  ,0.0 , -180.0] #分揀位置(小)
 
 #裝疊座標
 STACK_POS = [[297.0   ,193.0  ,120.0  ,-180.0  ,0.0  ,90.0], #裝疊位置
@@ -142,10 +141,10 @@ def getSortedCube(cubeType, grabSlotNumber): #for stack
         moveOffset = 80
 
     elif cubeType == 'MID':
-        moveOffset = 100
+        moveOffset = 95
 
     elif cubeType == 'SMALL':
-        moveOffset = 125
+        moveOffset = 120
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[grabSlotNumber], True) #開啟電磁閥
@@ -348,6 +347,8 @@ if __name__=='__main__':
                 elif slotCubeType[j] == 'SMALL':
                     placeSortedCube('SMALL', j)
                     STACK_POS[i][2] += SMALL_CUBE_SIZE
+
+            slotCubeType = ["NULL","NULL","NULL"] #reset slotCubeType
     
     print(f"-----------------------------\nfinish stacking\n")
    
