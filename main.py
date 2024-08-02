@@ -7,7 +7,7 @@ import gui
 
 #基本參數
 IP = "127.0.0.1"
-speedRate=100
+speedRate=50
 #groundZ=-193.5 #桌面絕對高度
 GET_CUBE_STEP = 250 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
@@ -67,13 +67,14 @@ def init():
     time.sleep(0.3)
 
     #設定速度
-    HIWIN_Python.set_lin_speed_edited(s,50) #設定直線運動速度 int set_lin_speed(HROBOT robot, double value),value=mm/s
-    HIWIN_Python.set_ptp_speed(s,speedRate) #設定直線運動速度 int set_lin_speed(HROBOT robot, double value),value=mm/s
     HIWIN_Python.set_acc_dec_ratio(s,100)
-    time.sleep(0.3)
+    HIWIN_Python.set_lin_speed_edited(s,650)#設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
+    HIWIN_Python.set_ptp_speed(s,90)#設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
 
     #設定移動%
     HIWIN_Python.set_override_ratio(s,speedRate) #設定整體速度 int set_override_ratio(HROBOT robot, double value)#整體速度比例:1-100(%)
+    time.sleep(0.3)
+
     move_abs(s ,  'PTP' , HOME_POS)
     return s
 
@@ -249,16 +250,15 @@ def checkOrderVaild(order):
 #MAIN=========================================================================================================
 if __name__=='__main__':
     gui.show_form()
+    global grab
+    #grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
 
     while gui.isSubmitOrder != True:
         time.sleep(0.1)
-
-    global grab
-    #grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
-    time.sleep(2)
-    #grab.write(b'blink\n')
-    time.sleep(2)
+   
     s = init()
+    #grab.write(b'blink\n')
+    time.sleep(1.5)
 
     # while HIWIN_Python.get_digital_input(s,START_BUTTON_IO_INDEX) == 0: #等待按鈕
     #     time.sleep(0.1)
