@@ -7,7 +7,7 @@ import gui
 
 #基本參數
 IP = "192.168.0.2"
-speedRate= 60 #速度比例
+speedRate= 30 #速度比例
 #groundZ=-193.5 #桌面絕對高度
 GET_CUBE_STEP = 80 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
@@ -33,27 +33,27 @@ midPosCounter = [0,0]
 smallPosCounter = [0,0]
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
-READY_POS = [0.0   ,470.0  ,130.0  ,180.0  ,0.0  ,90.0] #預備位置
+READY_POS = [0.0   ,470.0  ,140.0  ,180.0  ,0.0  ,90.0] #預備位置
 
 #分揀座標
 GET_CUBE_READY_POS = [-550.0   ,-80.0  ,60.0  ,180.0  ,0.0  ,90.0] #取料預備位置
 GET_CUBE_POS = [-550.0   ,-250.0  ,-130.0  ,180.0  ,0.0  ,90.0] #來料位置
-PLACE_READY_POS = [-320.0   ,414.0  ,125.0  ,180.0  ,0.0  ,-180.0] #分揀預備位置
-SORT_LARGE_POS = [-283.0   ,314.0  ,125.0  ,180.0  ,0.0  ,-180.0] #分揀位置(大)
-SORT_MID_POS = [-42.0   ,374.0  ,125.0  ,180.0  ,0.0  ,-180.0] #分揀位置(中)
-SORT_SMALL_POS = [134.0   ,351.0  ,125.0  ,180.0  ,0.0 , -180.0] #分揀位置(小)
+PLACE_READY_POS = [-320.0   ,414.0  ,125.0  ,180.0  ,0.0  ,0.0] #分揀預備位置
+SORT_LARGE_POS = [-283.0   ,314.0  ,125.0  ,180.0  ,0.0  ,0.0] #分揀位置(大)
+SORT_MID_POS = [-42.0   ,374.0  ,125.0  ,180.0  ,0.0  ,0.0] #分揀位置(中)
+SORT_SMALL_POS = [134.0   ,351.0  ,125.0  ,180.0  ,0.0 , 0.0] #分揀位置(小)
 
 #裝疊座標
-STACK_POS = [[297.0   ,193.0  ,120.0  ,-180.0  ,0.0  ,90.0], #裝疊位置
-             [297.0   ,273.0  ,120.0  ,-180.0  ,0.0  ,90.0],
-             [297.0   ,353.0  ,120.0  ,-180.0  ,0.0  ,90.0],
-             [297.0   ,433.0  ,120.0  ,-180.0  ,0.0  ,90.0]] 
+STACK_POS = [[297.0   ,193.0  ,120.0  ,180.0  ,0.0  ,90.0], #裝疊位置
+             [297.0   ,273.0  ,120.0  ,180.0  ,0.0  ,90.0],
+             [297.0   ,353.0  ,120.0  ,180.0  ,0.0  ,90.0],
+             [297.0   ,433.0  ,120.0  ,180.0  ,0.0  ,90.0]] 
 
 
 isSubmitOrder = False
 stackOrder = [[0,0,0],[0,0,0],[0,0,0],[0,0,0]] #[large,mid,small]
 
-COM_PORT = 'COM6'
+COM_PORT = 'COM5'
 BAUD_RATES = 9600
 
 def init():
@@ -112,7 +112,6 @@ def move_rel(s ,  mode , position):
     print(f"  Move rel ({position[0]},{position[1]},{position[2]})")
 
 def getCubeType():
-    return
     global grab
     grab.write(b'getType\n')
     time.sleep(0.2)
@@ -135,7 +134,7 @@ def getSourceCube():
 
 def getSortedCube(cubeType, grabSlotNumber): #for stack
     moveOffset = 0
-    move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(1-grabSlotNumber),0,0,0,0,0)) #夾爪偏移
+    move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-grabSlotNumber),0,0,0,0)) #夾爪偏移
 
     if cubeType == 'LARGE':
         moveOffset = 80
@@ -251,13 +250,13 @@ def checkOrderVaild(order):
 if __name__=='__main__':
     gui.show_form()
     global grab
-    #grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
+    grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
 
     while gui.isSubmitOrder != True:
         time.sleep(0.1)
    
     s = init()
-    #grab.write(b'blink\n')
+    grab.write(b'blink\n')
     time.sleep(1.5)
 
     while HIWIN_Python.get_digital_input(s,START_BUTTON_IO_INDEX) == 0: #等待按鈕
@@ -296,11 +295,11 @@ if __name__=='__main__':
                 changeSmallPos(1) #下一個放料位置
 
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
-        #grab.write(b'clear\n') #清除夾爪
+        grab.write(b'clear\n') #清除夾爪
 
     print(f"-----------------------------\nfinish sorting\n")
     move_abs(s,'PTP',HOME_POS) #回到預備位置
-    #grab.write(b'blink\n') #夾爪閃爍
+    grab.write(b'blink\n') #夾爪閃爍
     time.sleep(2)
 
     #裝疊-----------------------------------------------------------------------------------------------
@@ -332,6 +331,7 @@ if __name__=='__main__':
                     move_abs(s, 'PTP', SORT_SMALL_POS)
                     getSortedCube('SMALL', j)
                     stackOrder[i][2] -= 1
+                    slotCubeType[j] = "SMALL"
                     changeSmallPos(-1)
 
             # 放置方塊
@@ -353,7 +353,7 @@ if __name__=='__main__':
     print(f"-----------------------------\nfinish stacking\n")
    
     move_abs(s,'PTP',HOME_POS)#回原點位置 
-    #grab.write(b'blink\n') #夾爪閃爍
+    grab.write(b'blink\n') #夾爪閃爍
     time.sleep(2)
-    #grab.close()
+    grab.close()
     HIWIN_Python.disconnect(s)#斷開連接

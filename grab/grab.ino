@@ -26,9 +26,9 @@ void loop() {
 
         if (str == "getType") { //detect cube type
             String resultMsg = "";
-            int distance1 = map(analogRead(A1),0,1024,0,60); //slot1
-            int distance2 = map(analogRead(A2),0,1024,0,60); //slot2
-            int distance3 = map(analogRead(A3),0,1024,0,60); //slot3
+            int distance1 = 60 - map(analogRead(A1),0,1024,0,60); //slot1
+            int distance2 = 60 - map(analogRead(A2),0,1024,0,60); //slot2
+            int distance3 = 60 - map(analogRead(A3),0,1024,0,60); //slot3
 
             if(distance1 <= 5){ //small
                 digitalWrite(2,1);

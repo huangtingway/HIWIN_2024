@@ -1,6 +1,6 @@
 import serial
 import time
-COM_PORT = 'COM6'
+COM_PORT = 'COM5'
 BAUD_RATES = 9600
 
 def getCubeType():
