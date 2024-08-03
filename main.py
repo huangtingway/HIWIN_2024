@@ -7,7 +7,7 @@ import gui
 
 #基本參數
 IP = "192.168.0.2"
-speedRate= 30 #速度比例
+speedRate= 40 #速度比例
 #groundZ=-193.5 #桌面絕對高度
 GET_CUBE_STEP = 80 #取料步伐
 #PUT_CUBE_STEP = 80 #分揀放料步伐
@@ -37,11 +37,15 @@ READY_POS = [0.0   ,470.0  ,140.0  ,180.0  ,0.0  ,90.0] #預備位置
 
 #分揀座標
 GET_CUBE_READY_POS = [-550.0   ,-80.0  ,60.0  ,180.0  ,0.0  ,90.0] #取料預備位置
-GET_CUBE_POS = [-550.0   ,-250.0  ,-130.0  ,180.0  ,0.0  ,90.0] #來料位置
-PLACE_READY_POS = [-320.0   ,414.0  ,125.0  ,180.0  ,0.0  ,0.0] #分揀預備位置
-SORT_LARGE_POS = [-283.0   ,314.0  ,125.0  ,180.0  ,0.0  ,0.0] #分揀位置(大)
-SORT_MID_POS = [-42.0   ,374.0  ,125.0  ,180.0  ,0.0  ,0.0] #分揀位置(中)
-SORT_SMALL_POS = [134.0   ,351.0  ,125.0  ,180.0  ,0.0 , 0.0] #分揀位置(小)
+GET_CUBE_POS = [-550.0   ,-250.0  ,-150.0  ,180.0  ,0.0  ,90.0] #來料位置
+PLACE_READY_POS = [-320.0   ,414.0  ,140.0  ,180.0  ,0.0  ,0.0] #分揀預備位置
+SORT_LARGE_ORG_POS = [-283.0   ,314.0  ,140.0  ,180.0  ,0.0  ,0.0] #分揀位置原點(大)
+SORT_MID_ORG_POS = [-42.0   ,374.0  ,140.0  ,180.0  ,0.0  ,0.0] #分揀位置原點(中)
+SORT_SMALL_ORG_POS = [134.0   ,351.0  ,140.0  ,180.0  ,0.0 , 0.0] #分揀位置原點(小)
+
+SORT_LARGE_POS = SORT_LARGE_ORG_POS #分揀位置(大)
+SORT_MID_POS = SORT_MID_ORG_POS #分揀位置(中)
+SORT_SMALL_POS = SORT_SMALL_ORG_POS #分揀位置(小)
 
 #裝疊座標
 STACK_POS = [[297.0   ,193.0  ,120.0  ,180.0  ,0.0  ,90.0], #裝疊位置
@@ -155,9 +159,9 @@ def placeSourceCube(cubeType, slotNumber):
     if cubeType == 'LARGE':
        moveOffset = 80
     elif cubeType == 'MID':
-       moveOffset = 100
+       moveOffset = 95
     elif cubeType == 'SMALL':
-        moveOffset = 125
+        moveOffset = 120
 
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
     HIWIN_Python.set_digital_output(s, slotNumber, False) #關閉電磁閥
@@ -196,8 +200,8 @@ def changeLargePos(offset):
         print("Error: large cube overflow")
         os._exit(0)
 
-    SORT_LARGE_POS[1] = 314.0 + largePosCounter[1]*PUT_CUBE_LARGE_YOFFSET
-    SORT_LARGE_POS[0] = -360.0 + largePosCounter[0]*PUT_CUBE_LARGE_XOFFSET
+    SORT_LARGE_POS[1] = SORT_LARGE_ORG_POS[1] + largePosCounter[1]*PUT_CUBE_LARGE_YOFFSET
+    SORT_LARGE_POS[0] = SORT_LARGE_ORG_POS[0] + largePosCounter[0]*PUT_CUBE_LARGE_XOFFSET
     print(f"largePosCounter:{largePosCounter}")
 
 def changeMidPos(offset):
@@ -216,8 +220,8 @@ def changeMidPos(offset):
         print("Error: mid cube overflow")
         os._exit(0)
 
-    SORT_MID_POS[1] = 374.0 + midPosCounter[1]*PUT_CUBE_MID_YOFFSET
-    SORT_MID_POS[0] = -42.0 + midPosCounter[0]*PUT_CUBE_MID_XOFFSET
+    SORT_MID_POS[1] = SORT_MID_ORG_POS[1] + midPosCounter[1]*PUT_CUBE_MID_YOFFSET
+    SORT_MID_POS[0] = SORT_MID_ORG_POS[0] + midPosCounter[0]*PUT_CUBE_MID_XOFFSET
     print(f"midPosCounter:{midPosCounter}")
 
 def changeSmallPos(offset):
@@ -236,14 +240,27 @@ def changeSmallPos(offset):
         print("Error: small cube overflow")
         os._exit(0)
 
-    SORT_SMALL_POS[1] = 351.0 + smallPosCounter[1]*PUT_CUBE_SMALL_YOFFSET
-    SORT_SMALL_POS[0] = 134.0 + smallPosCounter[0]*PUT_CUBE_SMALL_XOFFSET
+    SORT_SMALL_POS[1] = SORT_SMALL_ORG_POS[1] + smallPosCounter[1]*PUT_CUBE_SMALL_YOFFSET
+    SORT_SMALL_POS[0] = SORT_SMALL_ORG_POS[0] + smallPosCounter[0]*PUT_CUBE_SMALL_XOFFSET
     print(f"smallPosCounter:{smallPosCounter}")
 
-def checkOrderVaild(order):
-    if sum(order) == 0 or sum(order) > 3:
-        print("Error: invalid order")
+def checkOrderVaild(order, orderNum):
+    if sum(order) == 0 :
+        print("Error: order is 0")
         return False
+    
+    if sum(order) > 5 and (orderNum == 0):
+        print("Error: order overflow")
+        return False
+    
+    if sum(order) > 4 and (orderNum == 1):
+        print("Error: order overflow")
+        return False
+    
+    if sum(order) > 3 and (orderNum == 3 or orderNum == 2):
+        print("Error: order overflow")
+        return False
+
     return True
 
 #MAIN=========================================================================================================
@@ -270,7 +287,7 @@ if __name__=='__main__':
         cubeType = getSourceCube()
         cubeType = ['LARGE','MID','SMALL'] #for test
         move_abs(s,'PTP',GET_CUBE_READY_POS) #移動至取料預備位置
-        move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
+        #move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
         
         for j in range(3): #分揀
             if cubeType[j] == 'LARGE':
@@ -300,14 +317,14 @@ if __name__=='__main__':
     print(f"-----------------------------\nfinish sorting\n")
     move_abs(s,'PTP',HOME_POS) #回到預備位置
     grab.write(b'blink\n') #夾爪閃爍
-    time.sleep(2)
+    time.sleep(1)
 
     #裝疊-----------------------------------------------------------------------------------------------
     stackOrder = gui.stackOrder
     
     for i in range(4): #iterate through 4 orders
         print(f"-----------------------------\nstart stackOrder {i}:{stackOrder[i]}")
-        if(checkOrderVaild(stackOrder[i]) == False): continue
+        if(checkOrderVaild(stackOrder[i], i) == False): continue
         slotCubeType = ["NULL","NULL","NULL"]
 
         while sum(stackOrder[i]) > 0:

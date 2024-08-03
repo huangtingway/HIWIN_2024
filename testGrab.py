@@ -22,11 +22,15 @@ if __name__=='__main__':
     grab.write(b'blink\n')
     time.sleep(2)
 
-    for i in range(3):
+    while True:
+        command = input('按任意鍵繼續, 按Q離開：')
+
+        if command == 'Q' or command == 'q':
+            break
+
         getCubeType()
         time.sleep(3)
         grab.write(b'clear\n')
-        time.sleep(3)
 
     grab.write(b'blink\n')
     time.sleep(2)
