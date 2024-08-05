@@ -4,12 +4,14 @@ import serial
 
 speedRate=70
 tableHeight = 60.0
-
+WORK_TABLE_HEIGHT= -25 #桌面絕對高度
+EXTEND_TABLE_HEIGHT= -250 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
 SLOT_IO_INDEX = [9,10,11] #IO
 
 COM_PORT = 'COM5'
 BAUD_RATES = 9600
+IP = "192.168.0.2"
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
 READY_POS = [0.0   ,470.0  ,140.0  ,180.0  ,0.0  ,90.0] #預備位置
@@ -19,18 +21,22 @@ GET_CUBE_STEP = 80 #取料步伐
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
 
 #分揀座標
-GET_CUBE_READY_POS = [-550.0   ,-80.0  ,60.0  ,180.0  ,0.0  ,90.0] #取料預備位置
-GET_CUBE_POS = [-550.0   ,-250.0  ,-150.0  ,180.0  ,0.0  ,90.0] #來料位置
-PLACE_READY_POS = [-320.0   ,414.0  ,140.0  ,180.0  ,0.0  ,0.0] #分揀預備位置
-SORT_LARGE_POS = [-283.0   ,314.0  ,140.0  ,180.0  ,0.0  ,0.0] #分揀位置(大)
-SORT_MID_POS = [-42.0   ,374.0  ,140.0  ,180.0  ,0.0  ,0.0] #分揀位置(中)
-SORT_SMALL_POS = [134.0   ,351.0  ,140.0  ,180.0  ,0.0 , 0.0] #分揀位置(小)
+GET_CUBE_READY_POS = [-550.0 ,-80.0  ,60.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
+GET_CUBE_POS =       [-550.0 ,-250.0 ,EXTEND_TABLE_HEIGHT + 90 ,180.0  ,0.0  ,90.0] #來料位置
+PLACE_READY_POS =    [-320.0 ,414.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀預備位置
+SORT_LARGE_ORG_POS = [-283.0 ,314.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀位置原點(大)
+SORT_MID_ORG_POS =   [-42.0  ,374.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀位置原點(中)
+SORT_SMALL_ORG_POS = [134.0  ,351.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0 , 0.0] #分揀位置原點(小)
+
+SORT_LARGE_POS = SORT_LARGE_ORG_POS #分揀位置(大)
+SORT_MID_POS = SORT_MID_ORG_POS #分揀位置(中)
+SORT_SMALL_POS = SORT_SMALL_ORG_POS #分揀位置(小)
 
 #裝疊座標
-STACK_POS = [[297.0   ,193.0  ,120.0  ,180.0  ,0.0  ,90.0], #裝疊位置
-             [297.0   ,273.0  ,120.0  ,180.0  ,0.0  ,90.0],
-             [297.0   ,353.0  ,120.0  ,180.0  ,0.0  ,90.0],
-             [297.0   ,433.0  ,120.0  ,180.0  ,0.0  ,90.0]] 
+STACK_POS = [[340.0   ,270.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0], #裝疊位置
+             [340.0   ,350.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0],
+             [340.0   ,430.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0],
+             [340.0   ,510.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0]] 
 
 #絕對移動
 def move_abs(s ,  mode , position):
@@ -237,7 +243,7 @@ if __name__=='__main__':
 
     testMove()
     testIO()
-    testHeight()
+    #testHeight()
     testPos()
     testGrab()
     testGetPut()
