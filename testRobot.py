@@ -2,10 +2,10 @@ import HIWIN_Python
 import time
 import serial
 
-speedRate=70
+speedRate=50
 tableHeight = 60.0
-WORK_TABLE_HEIGHT= -25 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -250 #延伸檯面絕對高度
+WORK_TABLE_HEIGHT= -20 #桌面絕對高度
+EXTEND_TABLE_HEIGHT= -350 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
 SLOT_IO_INDEX = [9,10,11] #IO
 
@@ -14,19 +14,19 @@ BAUD_RATES = 9600
 IP = "192.168.0.2"
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
-READY_POS = [0.0   ,470.0  ,140.0  ,180.0  ,0.0  ,90.0] #預備位置
+READY_POS = [0.0   ,470.0  ,180.0  ,180.0  ,0.0  ,90.0] #預備位置
 
 #分揀參數
-GET_CUBE_STEP = 80 #取料步伐
+GET_CUBE_STEP = 65 #取料步伐
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
 
 #分揀座標
 GET_CUBE_READY_POS = [-550.0 ,-80.0  ,60.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
 GET_CUBE_POS =       [-550.0 ,-250.0 ,EXTEND_TABLE_HEIGHT + 90 ,180.0  ,0.0  ,90.0] #來料位置
 PLACE_READY_POS =    [-320.0 ,414.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀預備位置
-SORT_LARGE_ORG_POS = [-283.0 ,314.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀位置原點(大)
-SORT_MID_ORG_POS =   [-42.0  ,374.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀位置原點(中)
-SORT_SMALL_ORG_POS = [134.0  ,351.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0 , 0.0] #分揀位置原點(小)
+SORT_LARGE_ORG_POS = [-283.0 ,314.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(大)
+SORT_MID_ORG_POS =   [-42.0  ,374.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(中)
+SORT_SMALL_ORG_POS = [134.0  ,351.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0 , 180.0] #分揀位置原點(小)
 
 SORT_LARGE_POS = SORT_LARGE_ORG_POS #分揀位置(大)
 SORT_MID_POS = SORT_MID_ORG_POS #分揀位置(中)
@@ -58,6 +58,15 @@ def move_abs(s ,  mode , position):
 def move_rel(s ,  mode , position):
     if (mode == 'PTP'):
         HIWIN_Python.ptp_rel_pos_edited(s,1,*position)
+        while HIWIN_Python.get_motion_state(s) != 1:
+            time.sleep(0.1)
+        time.sleep(0.1)
+
+    print(f"  Move rel ({position[0]},{position[1]},{position[2]})")
+
+def move_axis(s ,  mode , position):
+    if (mode == 'PTP'):
+        HIWIN_Python.ptp_axis_edited(s,1,*position)
         while HIWIN_Python.get_motion_state(s) != 1:
             time.sleep(0.1)
         time.sleep(0.1)
@@ -99,7 +108,7 @@ def testMove():
     print('V 移動測試完成\n')
 
 def testIO():
-    print('開始IO測試')
+    input('按任意鍵開始IO測試')
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], True) #開啟電磁閥
     time.sleep(1)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], True) #開啟電磁閥
@@ -137,8 +146,8 @@ def testPos():
     input('按任鍵開始座標測試')
     HIWIN_Python.set_override_ratio(s,20)
     move_abs(s ,  'PTP' , SORT_LARGE_POS) #工作台
-    input('按任意鍵繼續')
     HIWIN_Python.set_override_ratio(s,speedRate)
+    input('按任意鍵繼續')
     move_abs(s ,  'PTP' , SORT_MID_POS)
     input('按任意鍵繼續')
     move_abs(s ,  'PTP' , SORT_SMALL_POS)
@@ -152,12 +161,13 @@ def testPos():
     move_abs(s ,  'PTP' , STACK_POS[3])
     input('按任意鍵繼續')
 
+    move_axis(s ,  'PTP' , (0,-17,1.492,0,-73.6,0))
     move_abs(s ,  'PTP' , GET_CUBE_READY_POS) #延伸檯面
     input('按任意鍵繼續')
     HIWIN_Python.set_override_ratio(s,20)
     move_abs(s ,  'PTP' , GET_CUBE_POS)
-    input('按任意鍵繼續')
     HIWIN_Python.set_override_ratio(s,speedRate)
+    input('按任意鍵繼續')
     move_rel(s ,  'PTP' , (0,GET_CUBE_YOFFSET,0,0,0,0))
     input('按任意鍵繼續')
     move_rel(s ,  'PTP' , (0,GET_CUBE_YOFFSET,0,0,0,0))
@@ -170,18 +180,19 @@ def testPos():
 def testGrab():
     global grab
     input('按任鍵開始夾爪測試')
+    move_abs(s ,  'PTP' , GET_CUBE_READY_POS)
     move_abs(s ,  'PTP' , GET_CUBE_POS)
 
     while True:
         grab.write(b'clear\n')
-        HIWIN_Python.set_override_ratio(s,15)
+        HIWIN_Python.set_override_ratio(s,10)
         move_rel(s ,  'PTP' , (0,0,GET_CUBE_STEP*-1,0,0,0))
+        HIWIN_Python.set_override_ratio(s,speedRate)
         grab.write(b'getType\n')
         time.sleep(0.1)
         data_raw = grab.readline()  # 讀取一行
         data = data_raw.decode()   # 用預設的UTF-8解碼
         print(data)
-        HIWIN_Python.set_override_ratio(s,speedRate)
         move_rel(s ,  'PTP' , (0,0,GET_CUBE_STEP,0,0,0))
 
         command = input('按任鍵繼續, 按Q離開：')
@@ -190,7 +201,7 @@ def testGrab():
     
     grab.write(b'clear\n')
     grab.write(b'blink\n')
-    time.sleep(2)
+    time.sleep(1)
     print('V 夾爪測試完成\n')
 
 def testGetPut():
@@ -199,31 +210,31 @@ def testGetPut():
     
     HIWIN_Python.set_override_ratio(s,15)
     move_rel(s ,  'PTP' , (0,0,GET_CUBE_STEP*-1,0,0,0))
+    HIWIN_Python.set_override_ratio(s,speedRate)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], True) # Open slot IO 1#啟動電磁閥
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], True) # Open slot IO 2
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], True) # Open slot IO 3
-    time.sleep(0.1)
-    HIWIN_Python.set_override_ratio(s,speedRate)
+    time.sleep(0.3)
     move_rel(s ,  'PTP' , (0,0,GET_CUBE_STEP,0,0,0))
 
-    move_abs(s ,  'PTP' , GET_CUBE_POS)
+    move_abs(s ,  'PTP' , GET_CUBE_READY_POS)
     move_abs(s ,  'PTP' , SORT_LARGE_POS)
 
-    placeOffset = 80
+    placeOffset = 100
     HIWIN_Python.set_override_ratio(s,15)
     move_rel(s ,  'PTP' , (0,0,-placeOffset,0,0,0))
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], False) 
     HIWIN_Python.set_override_ratio(s,speedRate)
     move_rel(s ,  'PTP' , (0,0,placeOffset,0,0,0))
     
-    placeOffset = 95
+    placeOffset = 115
     HIWIN_Python.set_override_ratio(s,15)
     move_rel(s ,  'PTP' , (0,0,-placeOffset,0,0,0))
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], False) 
     HIWIN_Python.set_override_ratio(s,speedRate)
     move_rel(s ,  'PTP' , (0,0,placeOffset,0,0,0))
     
-    placeOffset = 120
+    placeOffset = 140
     HIWIN_Python.set_override_ratio(s,15)
     move_rel(s ,  'PTP' , (0,0,-placeOffset,0,0,0))
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], False) 
@@ -241,10 +252,10 @@ if __name__=='__main__':
     input('預備執行任務，請按任意鍵繼續')
     move_abs(s ,  'PTP' , READY_POS)
 
-    testMove()
-    testIO()
+    #testMove()
+    #testIO()
     #testHeight()
-    testPos()
+    #testPos()
     testGrab()
     testGetPut()
     

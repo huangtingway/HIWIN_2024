@@ -7,11 +7,11 @@ import gui
 
 #基本參數
 IP = "192.168.0.2"
-speedRate= 60.0 #速度比例
-putSpeedRate = 15.0 #放料速度比例
-WORK_TABLE_HEIGHT= -25 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -250 #延伸檯面絕對高度
-GET_CUBE_STEP = 60 #取料步伐
+speedRate= 90 #速度比例
+putSpeedRate = 25 #放料速度比例
+WORK_TABLE_HEIGHT= -20 #桌面絕對高度
+EXTEND_TABLE_HEIGHT= -350 #延伸檯面絕對高度
+GET_CUBE_STEP = 65 #取料步伐
 GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸
 MID_CUBE_SIZE = 55 #中方塊尺寸
@@ -35,18 +35,19 @@ smallPosCounter = [0,0]
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
 READY_POS = [0.0   ,470.0  ,140.0  ,180.0  ,0.0  ,90.0] #預備位置
+READY_AXIS = [0,-17,1.492,0,-73.6,0]
 
 #分揀座標
-GET_CUBE_READY_POS = [-550.0 ,-80.0  ,60.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
+GET_CUBE_READY_POS = [-550.0 ,-80.0  ,130.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
 GET_CUBE_POS =       [-550.0 ,-250.0 ,EXTEND_TABLE_HEIGHT + 90 ,180.0  ,0.0  ,90.0] #來料位置
 PLACE_READY_POS =    [-320.0 ,414.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀預備位置
-SORT_LARGE_ORG_POS = [-283.0 ,314.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀位置原點(大)
-SORT_MID_ORG_POS =   [-42.0  ,374.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀位置原點(中)
-SORT_SMALL_ORG_POS = [134.0  ,351.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0 , 0.0] #分揀位置原點(小)
+SORT_LARGE_ORG_POS = [-283.0 ,314.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(大)
+SORT_MID_ORG_POS =   [-42.0  ,374.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(中)
+SORT_SMALL_ORG_POS = [134.0  ,351.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0 , 180.0] #分揀位置原點(小)
 
-SORT_LARGE_POS = SORT_LARGE_ORG_POS #分揀位置(大)
-SORT_MID_POS = SORT_MID_ORG_POS #分揀位置(中)
-SORT_SMALL_POS = SORT_SMALL_ORG_POS #分揀位置(小)
+SORT_LARGE_POS = SORT_LARGE_ORG_POS.copy()
+SORT_MID_POS = SORT_MID_ORG_POS.copy()
+SORT_SMALL_POS = SORT_SMALL_ORG_POS.copy()
 
 #裝疊座標
 STACK_POS = [[340.0   ,270.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0], #裝疊位置
@@ -57,7 +58,7 @@ STACK_POS = [[340.0   ,270.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0], #�
 isSubmitOrder = False
 stackOrder = [[0,0,0],[0,0,0],[0,0,0],[0,0,0]] #[large,mid,small]
 
-COM_PORT = 'COM5'
+COM_PORT = 'COM7'
 BAUD_RATES = 9600
 
 def init():
@@ -71,7 +72,7 @@ def init():
     time.sleep(0.3)
 
     #設定速度
-    HIWIN_Python.set_acc_dec_ratio(s,100)
+    HIWIN_Python.set_acc_dec_ratio(s,40)
     HIWIN_Python.set_lin_speed_edited(s,650)#設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
     HIWIN_Python.set_ptp_speed(s,speedRate)#設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
 
@@ -115,6 +116,15 @@ def move_rel(s ,  mode , position):
     
     print(f"  Move rel ({position[0]},{position[1]},{position[2]})")
 
+def move_axis(s ,  mode , position):
+    if (mode == 'PTP'):
+        HIWIN_Python.ptp_axis_edited(s,1,*position)
+        while HIWIN_Python.get_motion_state(s) != 1:
+            time.sleep(0.1)
+        time.sleep(0.1)
+
+    print(f"  Move rel ({position[0]},{position[1]},{position[2]})")
+
 def getCubeType():
     global grab
     grab.write(b'getType\n')
@@ -123,8 +133,9 @@ def getCubeType():
     data_raw = grab.readline()  # 讀取一行
     data = data_raw.decode()   # 用預設的UTF-8解碼
     data = data.split(' ')
-    print('夾爪辨識：', data)
-    return data
+    res = [data[2],data[1],data[0]]
+    print('夾爪辨識：', res)
+    return res
 
 def getSourceCube():
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定取料速度
@@ -133,7 +144,7 @@ def getSourceCube():
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], True) # Open slot IO 1#啟動電磁閥
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], True) # Open slot IO 2
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], True) # Open slot IO 3
-    time.sleep(0.1)
+    time.sleep(0.3)
     cubeType = getCubeType() #取得方塊類型
     time.sleep(0.1)
     move_rel(s,'PTP',(0,0,GET_CUBE_STEP,0,0,0)) #抬起夾爪
@@ -141,16 +152,16 @@ def getSourceCube():
 
 def getSortedCube(cubeType, grabSlotNumber): #for stack
     moveOffset = 0
-    move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-grabSlotNumber),0,0,0,0)) #夾爪偏移
+    move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(grabSlotNumber-1),0,0,0,0)) #夾爪偏移
 
     if cubeType == 'LARGE':
-        moveOffset = 90
-
-    elif cubeType == 'MID':
         moveOffset = 105
 
+    elif cubeType == 'MID':
+        moveOffset = 120
+
     elif cubeType == 'SMALL':
-        moveOffset = 130
+        moveOffset = 145
 
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定取料速度
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
@@ -162,11 +173,11 @@ def placeSourceCube(cubeType, slotNumber):
     moveOffset = 0
 
     if cubeType == 'LARGE':
-       moveOffset = 90
-    elif cubeType == 'MID':
        moveOffset = 105
+    elif cubeType == 'MID':
+       moveOffset = 120
     elif cubeType == 'SMALL':
-        moveOffset = 130
+        moveOffset = 140
 
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定放料速度
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
@@ -180,18 +191,18 @@ def placeSortedCube(cubeType, slotNumber): #for stack
     moveOffset = 0
 
     if cubeType == 'LARGE':
-       moveOffset = 90
+       moveOffset = 105
     elif cubeType == 'MID':
-        moveOffset = 105
+        moveOffset = 120
     elif cubeType == 'SMALL':
-        moveOffset = 130
+        moveOffset = 140
 
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定放料速度
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
     HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[slotNumber], False) #關閉電磁閥
     time.sleep(0.1)
-    move_rel(s,'PTP',(0,0,moveOffset*2,0,0,0)) #抬起夾爪
+    move_rel(s,'PTP',(0,0,moveOffset,0,0,0)) #抬起夾爪
 
 def changeLargePos(offset):
     global largePosCounter
@@ -296,6 +307,7 @@ if __name__=='__main__':
         cubeType = getSourceCube()
         #cubeType = ['LARGE','MID','SMALL'] #for test
         move_abs(s,'PTP',GET_CUBE_READY_POS) #移動至取料預備位置
+        move_axis(s ,  'PTP' , READY_AXIS)
         #move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
         
         for j in range(3): #分揀
@@ -321,6 +333,7 @@ if __name__=='__main__':
                 changeSmallPos(1) #下一個放料位置
 
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
+        move_axis(s ,  'PTP' , READY_AXIS)
         grab.write(b'clear\n') #清除夾爪
 
     print(f"-----------------------------\nfinish sorting\n")
@@ -374,6 +387,7 @@ if __name__=='__main__':
                     placeSortedCube('SMALL', j)
                     STACK_POS[i][2] += SMALL_CUBE_SIZE #更新高度
 
+            move_axis(s ,  'PTP' , READY_AXIS)
             slotCubeType = ["NULL","NULL","NULL"] #reset slotCubeType
     
     print(f"-----------------------------\nfinish stacking\n")
