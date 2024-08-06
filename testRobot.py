@@ -129,19 +129,6 @@ def testIO():
     
     print('V IO測試完成\n')
 
-def testHeight():
-    while True :
-        grab.write(b'testHeight\n') 
-        time.sleep(0.1)
-        data_raw = grab.readline()  # 讀取一行
-        data = data_raw.decode()   # 用預設的UTF-8解碼
-
-        if data == 'stop':
-            break
-        
-        move_rel(s ,  'PTP' , (0,0,-1,0,0,0))
-        tableHeight -= 1
-
 def testPos():
     input('按任鍵開始座標測試')
     HIWIN_Python.set_override_ratio(s,20)

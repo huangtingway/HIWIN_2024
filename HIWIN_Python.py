@@ -889,5 +889,3 @@ def get_robot_dh(robot, type, dh_value):
 
 def get_gear_ratio(robot, gear_ratio):
     return _HIWIN_Python.get_gear_ratio(robot, gear_ratio)
-
-
