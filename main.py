@@ -7,8 +7,8 @@ import gui
 
 #基本參數
 IP = "192.168.0.2"
-speedRate= 90 #速度比例
-putSpeedRate = 25 #放料速度比例
+speedRate= 100 #速度比例
+putSpeedRate = 35 #放料速度比例
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
 EXTEND_TABLE_HEIGHT= -350 #延伸檯面絕對高度
 GET_CUBE_STEP = 65 #取料步伐
@@ -42,20 +42,20 @@ READY_AXIS = [0,-17,1.492,0,-73.6,0]
 #分揀座標
 GET_CUBE_READY_POS = [-550.0 ,-80.0  ,130.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
 GET_CUBE_POS =       [-550.0 ,-250.0 ,EXTEND_TABLE_HEIGHT + 90 ,180.0  ,0.0  ,90.0] #來料位置
-PLACE_READY_POS =    [-283.0 ,314.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,90.0] #分揀預備位置
-SORT_LARGE_ORG_POS = [-283.0 ,314.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(大)
-SORT_MID_ORG_POS =   [-42.0  ,374.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(中)
-SORT_SMALL_ORG_POS = [134.0  ,351.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0 , 180.0] #分揀位置原點(小)
+PLACE_READY_POS =    [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,90.0] #分揀預備位置
+SORT_LARGE_ORG_POS = [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(大)
+SORT_MID_ORG_POS =   [-102.0  ,349.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(中)
+SORT_SMALL_ORG_POS = [109.0  ,316.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0 , 180.0] #分揀位置原點(小)
 
 SORT_LARGE_POS = SORT_LARGE_ORG_POS.copy()
 SORT_MID_POS = SORT_MID_ORG_POS.copy()
 SORT_SMALL_POS = SORT_SMALL_ORG_POS.copy()
 
 #裝疊座標
-STACK_POS = [[340.0   ,510.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,90.0],
-             [340.0   ,430.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,90.0],
-             [340.0   ,350.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,90.0],
-             [340.0   ,270.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,90.0]] 
+STACK_POS = [[322.0   ,235.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [322.0   ,315.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [322.0   ,395.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [322.0   ,475.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
 
 isSubmitOrder = False
 stackOrder = [[0,0,0],[0,0,0],[0,0,0],[0,0,0]] #[large,mid,small]
@@ -71,7 +71,7 @@ def init():
     time.sleep(0.3)
 
     #設定速度
-    HIWIN_Python.set_acc_dec_ratio(s,20)
+    HIWIN_Python.set_acc_dec_ratio(s,10)
     HIWIN_Python.set_lin_speed_edited(s,650)#設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
     HIWIN_Python.set_ptp_speed(s,speedRate)#設定直線運動速度- int set_lin_speed(HROBOT robot, double value),value=mm/s
 
@@ -139,6 +139,7 @@ def getCubeType():
 
 def getSourceCube():
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定取料速度
+
     move_rel(s,'PTP',(0,0,-GET_CUBE_STEP,0,0,0)) #放下夾爪
     HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], True) # Open slot IO 1#啟動電磁閥
@@ -147,12 +148,12 @@ def getSourceCube():
     time.sleep(0.3)
     cubeType = getCubeType() #取得方塊類型
     time.sleep(0.1)
-    move_rel(s,'PTP',(0,0,GET_CUBE_STEP,0,0,0)) #抬起夾爪
+    move_rel(s,'PTP',(0,0,GET_CUBE_STEP + 70,0,0,0)) #抬起夾爪
     return cubeType
 
 def getSortedCube(cubeType, grabSlotNumber): #for stack
     moveOffset = 0
-    move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(grabSlotNumber-1),0,0,0,0)) #夾爪偏移
+    move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-grabSlotNumber),0,0,0,0)) #夾爪偏移
 
     if cubeType == 'LARGE':
         moveOffset = 105
@@ -245,7 +246,7 @@ def changeLargePos(offset):
         largePosCounter[1] = 2
         largePosCounter[0] -= 1
 
-    if largePosCounter[0] == 4 or largePosCounter[0] == -1:
+    if largePosCounter[0] == 4 :
         print("Error: large cube overflow")
         os._exit(0)
 
@@ -265,7 +266,7 @@ def changeMidPos(offset):
         midPosCounter[1] = 2
         midPosCounter[0] -= 1
 
-    if midPosCounter[0] == 4 or midPosCounter[0] == -1:
+    if midPosCounter[0] == 4 :
         print("Error: mid cube overflow")
         os._exit(0)
 
@@ -285,7 +286,7 @@ def changeSmallPos(offset):
         smallPosCounter[1] = 2
         smallPosCounter[0] -= 1
 
-    if smallPosCounter[0] == 4 or smallPosCounter[0] == -1:
+    if smallPosCounter[0] == 4:
         print("Error: small cube overflow")
         os._exit(0)
 
@@ -339,7 +340,13 @@ if __name__=='__main__':
         move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
         move_rel(s,'PTP',(0,0,0,0,0,90)) #轉90度
         
+        placeCubes = 0
+
         for j in range(3): #分揀
+            if placeCubes > 1: 
+                placeCubes -= 1
+                continue
+
             if cubeType[j] == 'LARGE':
                 print(f"\nsort \'large\' cube slot:{j}")
                 move_abs(s,'PTP',SORT_LARGE_POS)
@@ -361,7 +368,8 @@ if __name__=='__main__':
                 placeCubes = placeSourceCube(cubeType,j)
                 changeSmallPos(placeCubes)
 
-        j += placeCubes - 1
+            j += placeCubes - 1
+
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
         #move_axis(s ,  'PTP' , READY_AXIS)
         move_rel(s,'PTP',(0,0,0,0,0,-90))
@@ -406,6 +414,7 @@ if __name__=='__main__':
                     stackOrder[i][2] -= 1
                     slotCubeType[j] = "SMALL"
                     changeSmallPos(-1)
+            move_rel(s,'PTP',(0,0,0,0,0,90))
 
             # 放置方塊
             for j in range(2, -1, -1):
@@ -421,7 +430,7 @@ if __name__=='__main__':
                     placeSortedCube('SMALL', j)
                     STACK_POS[i][2] += SMALL_CUBE_SIZE #更新高度
 
-            move_axis(s ,  'PTP' , READY_AXIS)
+            move_rel(s,'PTP',(0,0,0,0,0,-90))
             slotCubeType = ["NULL","NULL","NULL"] #reset slotCubeType
     
     print(f"-----------------------------\nfinish stacking\n")
