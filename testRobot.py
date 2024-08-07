@@ -2,8 +2,7 @@ import HIWIN_Python
 import time
 import serial
 
-speedRate=50
-tableHeight = 60.0
+speedRate=60
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
 EXTEND_TABLE_HEIGHT= -350 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
@@ -20,24 +19,27 @@ READY_POS = [0.0   ,470.0  ,180.0  ,180.0  ,0.0  ,90.0] #預備位置
 GET_CUBE_STEP = 65 #取料步伐
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
 
+HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
+READY_POS = [0.0   ,470.0  ,140.0  ,180.0  ,0.0  ,90.0] #預備位置
+READY_AXIS = [0,-17,1.492,0,-73.6,0]
+
 #分揀座標
-GET_CUBE_READY_POS = [-550.0 ,-80.0  ,60.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
+GET_CUBE_READY_POS = [-550.0 ,-80.0  ,130.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
 GET_CUBE_POS =       [-550.0 ,-250.0 ,EXTEND_TABLE_HEIGHT + 90 ,180.0  ,0.0  ,90.0] #來料位置
-PLACE_READY_POS =    [-320.0 ,414.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,0.0] #分揀預備位置
+PLACE_READY_POS =    [-283.0 ,314.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,90.0] #分揀預備位置
 SORT_LARGE_ORG_POS = [-283.0 ,314.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(大)
 SORT_MID_ORG_POS =   [-42.0  ,374.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(中)
 SORT_SMALL_ORG_POS = [134.0  ,351.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0 , 180.0] #分揀位置原點(小)
 
-SORT_LARGE_POS = SORT_LARGE_ORG_POS #分揀位置(大)
-SORT_MID_POS = SORT_MID_ORG_POS #分揀位置(中)
-SORT_SMALL_POS = SORT_SMALL_ORG_POS #分揀位置(小)
+SORT_LARGE_POS = SORT_LARGE_ORG_POS.copy()
+SORT_MID_POS = SORT_MID_ORG_POS.copy()
+SORT_SMALL_POS = SORT_SMALL_ORG_POS.copy()
 
 #裝疊座標
-STACK_POS = [[340.0   ,270.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0], #裝疊位置
-             [340.0   ,350.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0],
-             [340.0   ,430.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0],
-             [340.0   ,510.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,-90.0]] 
-
+STACK_POS = [[340.0   ,510.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,90.0],
+             [340.0   ,430.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,90.0],
+             [340.0   ,350.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,90.0],
+             [340.0   ,270.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,90.0]] 
 #絕對移動
 def move_abs(s ,  mode , position):
     if (mode == 'PTP'):
@@ -148,7 +150,7 @@ def testPos():
     move_abs(s ,  'PTP' , STACK_POS[3])
     input('按任意鍵繼續')
 
-    move_axis(s ,  'PTP' , (0,-17,1.492,0,-73.6,0))
+    #move_axis(s ,  'PTP' , (0,-17,1.492,0,-73.6,0))
     move_abs(s ,  'PTP' , GET_CUBE_READY_POS) #延伸檯面
     input('按任意鍵繼續')
     HIWIN_Python.set_override_ratio(s,20)
@@ -205,7 +207,8 @@ def testGetPut():
     move_rel(s ,  'PTP' , (0,0,GET_CUBE_STEP,0,0,0))
 
     move_abs(s ,  'PTP' , GET_CUBE_READY_POS)
-    move_abs(s ,  'PTP' , SORT_LARGE_POS)
+    move_abs(s ,  'PTP' , PLACE_READY_POS)
+    move_rel(s ,  'PTP' , (0,0,0,0,0,90))
 
     placeOffset = 100
     HIWIN_Python.set_override_ratio(s,15)
@@ -228,6 +231,7 @@ def testGetPut():
     HIWIN_Python.set_override_ratio(s,speedRate)
     move_rel(s ,  'PTP' , (0,0,placeOffset,0,0,0))
     
+    move_rel(s ,  'PTP' , (0,0,0,0,0,-90))
     HIWIN_Python.set_override_ratio(s,speedRate)
     print('V 取料測試完成\n')
     
@@ -241,7 +245,6 @@ if __name__=='__main__':
 
     #testMove()
     #testIO()
-    #testHeight()
     #testPos()
     testGrab()
     testGetPut()

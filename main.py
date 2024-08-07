@@ -60,7 +60,6 @@ STACK_POS = [[340.0   ,510.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,90.0],
 isSubmitOrder = False
 stackOrder = [[0,0,0],[0,0,0],[0,0,0],[0,0,0]] #[large,mid,small]
 
-
 def init():
     s=HIWIN_Python.connect_robot(IP,1) #連線
     HIWIN_Python.clear_alarm(s)
@@ -185,16 +184,32 @@ def placeSourceCube(cubeType, slotNumber):
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
     HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
 
-    for i in range(slotNumber, 3):
-        if cubeType[i] == cubeType[slotNumber]:
+    for i in range(slotNumber, 3): #關閉電磁閥
+        if cubeType[i] == cubeType[slotNumber] and checkPutPosValid(cubeType[slotNumber], slotNumber, i) == True:
             placeCubes += 1
-            HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[i], False) #關閉電磁閥
+            HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[i], False) 
         else:
             break
     
     time.sleep(0.1)
     move_rel(s,'PTP',(0,0,moveOffset,0,0,0)) #抬起夾爪
     return placeCubes
+
+def checkPutPosValid(cubeType, orginSlotNumber, targetSlotNumber):
+    placeAmount = targetSlotNumber - orginSlotNumber + 1
+    vaildPlaceAmount = 0
+
+    if cubeType == 'LARGE':
+        vaildPlaceAmount = 3 - largePosCounter[1] 
+    elif cubeType == 'MID':
+        vaildPlaceAmount = 3 - midPosCounter[1]
+    elif cubeType == 'SMALL':
+        vaildPlaceAmount = 3 - smallPosCounter[1]
+
+    if placeAmount > vaildPlaceAmount:
+        return False
+    
+    return True
 
 def placeSortedCube(cubeType, slotNumber): #for stack
     move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(slotNumber-1),0,0,0,0,0)) #夾爪偏移
@@ -330,25 +345,23 @@ if __name__=='__main__':
                 move_abs(s,'PTP',SORT_LARGE_POS)
                 move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-j),0,0,0,0)) #夾爪偏移
                 placeCubes = placeSourceCube(cubeType,j)
-                j += placeCubes - 1
-                changeLargePos(placeCubes) #下一個放料位置
+                changeLargePos(placeCubes)
 
             elif cubeType[j] == 'MID':
                 print(f"\nsort \'mid\' cube slot:{j}")
                 move_abs(s,'PTP',SORT_MID_POS)
                 move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-j),0,0,0,0)) #夾爪偏移
                 placeCubes = placeSourceCube(cubeType,j)
-                j += placeCubes - 1
-                changeMidPos(placeCubes) #下一個放料位置
+                changeMidPos(placeCubes)
 
             elif cubeType[j] == 'SMALL':
                 print(f"\nsort \'small\' cube slot:{j}")
                 move_abs(s,'PTP',SORT_SMALL_POS)
                 move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-j),0,0,0,0)) #夾爪偏移
                 placeCubes = placeSourceCube(cubeType,j)
-                j += placeCubes - 1
-                changeSmallPos(placeCubes) #下一個放料位置
+                changeSmallPos(placeCubes)
 
+        j += placeCubes - 1
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
         #move_axis(s ,  'PTP' , READY_AXIS)
         move_rel(s,'PTP',(0,0,0,0,0,-90))
