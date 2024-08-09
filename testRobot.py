@@ -2,9 +2,9 @@ import HIWIN_Python
 import time
 import serial
 
-speedRate=90
+speedRate=80
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -350 #延伸檯面絕對高度
+EXTEND_TABLE_HEIGHT= -260 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
 SLOT_IO_INDEX = [9,10,11] #IO
 
@@ -36,10 +36,10 @@ SORT_MID_POS = SORT_MID_ORG_POS.copy()
 SORT_SMALL_POS = SORT_SMALL_ORG_POS.copy()
 
 #裝疊座標
-STACK_POS = [[322.0   ,195.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [322.0   ,275.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [322.0   ,355.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [0.0   ,235.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
+STACK_POS = [[310.0   ,210.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [310.0   ,325.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [310.0   ,445.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
 
 #絕對移動
 def move_abs(s ,  mode , position):
@@ -150,7 +150,8 @@ def testPos():
     input('按任意鍵繼續')
     move_abs(s ,  'PTP' , STACK_POS[3])
     input('按任意鍵繼續')
-
+    move_rel(s ,  'PTP' , (0,0,0,0,0,-90))
+    move_rel(s ,  'PTP' , (0,0,0,0,0,-90))
     #move_axis(s ,  'PTP' , (0,-17,1.492,0,-73.6,0))
     move_abs(s ,  'PTP' , GET_CUBE_READY_POS) #延伸檯面
     input('按任意鍵繼續')
