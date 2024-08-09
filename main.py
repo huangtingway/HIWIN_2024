@@ -87,14 +87,14 @@ def move_abs(s ,  mode , position):
     if (mode == 'PTP'):
         HIWIN_Python.ptp_pos_edited(s,1,*position)
         while HIWIN_Python.get_motion_state(s) != 1:
-            time.sleep(0.1)
-        time.sleep(0.1)
+            time.sleep(0.05)
+        time.sleep(0.05)
 
     if (mode == 'LIN'):
         HIWIN_Python.lin_pos_edited(s,0,0.0,*position)
         while HIWIN_Python.get_motion_state(s) != 1:
-            time.sleep(0.1)
-        time.sleep(0.1)
+            time.sleep(0.05)
+        time.sleep(0.05)
 
     print(f"  Move abs ({position[0]},{position[1]},{position[2]})")
 
@@ -103,15 +103,15 @@ def move_rel(s ,  mode , position):
     if (mode == 'PTP'):
         HIWIN_Python.ptp_rel_pos_edited(s,1,*position)
         while HIWIN_Python.get_motion_state(s) != 1:
-            time.sleep(0.1)
-        time.sleep(0.1)
+            time.sleep(0.05)
+        time.sleep(0.05)
 
     if (mode == 'LIN'):
         array = (ctypes.c_double * len(position))(*position)
         HIWIN_Python.lin_rel_pos(s,0,0,array)
         while HIWIN_Python.get_motion_state(s) != 1:
-            time.sleep(0.1)
-        time.sleep(0.1)
+            time.sleep(0.05)
+        time.sleep(0.05)
     
     print(f"  Move rel ({position[0]},{position[1]},{position[2]})")
 
@@ -120,8 +120,8 @@ def move_axis(s ,  mode , position):
     if (mode == 'PTP'):
         HIWIN_Python.ptp_axis_edited(s,1,*position)
         while HIWIN_Python.get_motion_state(s) != 1:
-            time.sleep(0.1)
-        time.sleep(0.1)
+            time.sleep(0.05)
+        time.sleep(0.05)
 
     print(f"  Move axis ({position[0]},{position[1]},{position[2]})")
 
@@ -179,7 +179,7 @@ def getSortedCube(cubeType, orgSlotNumber, requireStackCube, slotCubeType): #for
         else:
             break
 
-    time.sleep(0.2)
+    time.sleep(0.3)
     move_rel(s,'PTP',(0,0,moveOffset,0,0,0)) #抬起夾爪
     return getCubes
 
@@ -339,19 +339,19 @@ def checkOrderVaild(order, orderNum):
 
 #MAIN=========================================================================================================
 if __name__=='__main__':
-    gui.show_form()
-    s = init()
+    s = init() 
     global grab
     grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
+    gui.show_form()
 
     while gui.isSubmitOrder != True: #等待輸入訂單
-        time.sleep(0.1)
+        time.sleep(0.05)
 
     while HIWIN_Python.get_digital_input(s,START_BUTTON_IO_INDEX) == 0: #等待按鈕
-        time.sleep(0.1)
+        time.sleep(0.05)
 
     grab.write(b'blink\n')
-    time.sleep(0.5)
+    time.sleep(0.3)
 
     #分揀-----------------------------------------------------------------------------------------------
     for i in range(4):
@@ -360,7 +360,6 @@ if __name__=='__main__':
         move_abs(s,'PTP',GET_CUBE_POS) #移動至取料位置
         cubeType = getSourceCube()
         move_abs(s,'PTP',GET_CUBE_READY_POS) #移動至取料預備位置
-        #move_axis(s ,  'PTP' , READY_AXIS)
         move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
         move_rel(s,'PTP',(0,0,0,0,0,90)) #轉90度
         
@@ -393,7 +392,6 @@ if __name__=='__main__':
                 changeSmallPos(placeCubes)
 
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
-        #move_axis(s ,  'PTP' , READY_AXIS)
         move_rel(s,'PTP',(0,0,0,0,0,-90))
         grab.write(b'clear\n') #清除夾爪
 

@@ -2,7 +2,7 @@ import HIWIN_Python
 import time
 import serial
 
-speedRate=80
+speedRate=90
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
 EXTEND_TABLE_HEIGHT= -350 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
@@ -27,7 +27,7 @@ READY_AXIS = [0,-17,1.492,0,-73.6,0]
 GET_CUBE_READY_POS = [-550.0 ,-80.0  ,130.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
 GET_CUBE_POS =       [-550.0 ,-250.0 ,EXTEND_TABLE_HEIGHT + 90 ,180.0  ,0.0  ,90.0] #來料位置
 PLACE_READY_POS =    [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,90.0] #分揀預備位置
-SORT_LARGE_ORG_POS = [-343.0 ,259.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(大)
+SORT_LARGE_ORG_POS = [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(大)
 SORT_MID_ORG_POS =   [-102.0  ,349.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(中)
 SORT_SMALL_ORG_POS = [109.0  ,316.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0 , 180.0] #分揀位置原點(小)
 
@@ -36,10 +36,10 @@ SORT_MID_POS = SORT_MID_ORG_POS.copy()
 SORT_SMALL_POS = SORT_SMALL_ORG_POS.copy()
 
 #裝疊座標
-STACK_POS = [[322.0   ,465.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [322.0   ,385.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [322.0   ,305.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [322.0   ,225.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
+STACK_POS = [[322.0   ,195.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [322.0   ,275.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [322.0   ,355.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [0.0   ,235.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
 
 #絕對移動
 def move_abs(s ,  mode , position):
@@ -134,7 +134,7 @@ def testIO():
 
 def testPos():
     input('按任鍵開始座標測試')
-    HIWIN_Python.set_override_ratio(s,30)
+    HIWIN_Python.set_override_ratio(s,35)
     move_abs(s ,  'PTP' , SORT_LARGE_POS) #工作台
     HIWIN_Python.set_override_ratio(s,speedRate)
     input('按任意鍵繼續')
@@ -154,7 +154,7 @@ def testPos():
     #move_axis(s ,  'PTP' , (0,-17,1.492,0,-73.6,0))
     move_abs(s ,  'PTP' , GET_CUBE_READY_POS) #延伸檯面
     input('按任意鍵繼續')
-    HIWIN_Python.set_override_ratio(s,20)
+    HIWIN_Python.set_override_ratio(s,25)
     move_abs(s ,  'PTP' , GET_CUBE_POS)
     HIWIN_Python.set_override_ratio(s,speedRate)
     input('按任意鍵繼續')
