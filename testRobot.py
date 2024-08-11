@@ -41,6 +41,11 @@ STACK_POS = [[310.0   ,210.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
              [310.0   ,445.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
              [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
 
+TEST_POS1 = [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(右上)
+TEST_POS2 = [-343.0 ,450.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(右下)
+TEST_POS3 = [310.0  ,210.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(左上)
+TEST_POS4 = [310.0  ,450.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(左下)
+
 #絕對移動
 def move_abs(s ,  mode , position):
     if (mode == 'PTP'):
@@ -100,29 +105,27 @@ def init():
 
 def testMove():
     input('按任意鍵開始移動測試')
-    HIWIN_Python.set_override_ratio(s,40)
     move_rel(s ,  'PTP' , (0,0,50,0,0,0))
     move_rel(s ,  'PTP' , (0,0,-50,0,0,0))
     move_rel(s ,  'PTP' , (0,50,0,0,0,0))
     move_rel(s ,  'PTP' , (0,-50,0,0,0,0))
     move_rel(s ,  'PTP' , (50,0,0,0,0,0))
     move_rel(s ,  'PTP' , (-50,0,0,0,0,0))
-    HIWIN_Python.set_override_ratio(s,speedRate)
     print('V 移動測試完成\n')
 
 def testIO():
     input('按任意鍵開始IO測試')
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], True) #開啟電磁閥
-    time.sleep(1)
+    time.sleep(0.6)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], True) #開啟電磁閥
-    time.sleep(1)
+    time.sleep(0.6)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], True) #開啟電磁閥
-    time.sleep(2)
+    time.sleep(1)
 
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], False) #關閉電磁閥
-    time.sleep(1)
+    time.sleep(0.6)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], False) #關閉電磁閥
-    time.sleep(1)
+    time.sleep(0.6)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], False) #關閉電磁閥
 
     print('按下開始按鈕')
@@ -134,9 +137,18 @@ def testIO():
 
 def testPos():
     input('按任鍵開始座標測試')
-    HIWIN_Python.set_override_ratio(s,35)
-    move_abs(s ,  'PTP' , SORT_LARGE_POS) #工作台
+    HIWIN_Python.set_override_ratio(s,40)
+    move_abs(s ,  'PTP' , TEST_POS1)
     HIWIN_Python.set_override_ratio(s,speedRate)
+    input('按任意鍵繼續')
+    
+    move_abs(s ,  'PTP' , TEST_POS2)
+    input('按任意鍵繼續')
+    move_abs(s ,  'PTP' , TEST_POS3)
+    input('按任意鍵繼續')
+    move_abs(s ,  'PTP' , TEST_POS4)
+    input('按任意鍵繼續')
+    move_abs(s ,  'PTP' , SORT_LARGE_POS)
     input('按任意鍵繼續')
     move_abs(s ,  'PTP' , SORT_MID_POS)
     input('按任意鍵繼續')
@@ -153,9 +165,10 @@ def testPos():
     move_rel(s ,  'PTP' , (0,0,0,0,0,-90))
     move_rel(s ,  'PTP' , (0,0,0,0,0,-90))
     #move_axis(s ,  'PTP' , (0,-17,1.492,0,-73.6,0))
+    
     move_abs(s ,  'PTP' , GET_CUBE_READY_POS) #延伸檯面
     input('按任意鍵繼續')
-    HIWIN_Python.set_override_ratio(s,25)
+    HIWIN_Python.set_override_ratio(s,35)
     move_abs(s ,  'PTP' , GET_CUBE_POS)
     HIWIN_Python.set_override_ratio(s,speedRate)
     input('按任意鍵繼續')
