@@ -36,15 +36,15 @@ SORT_MID_POS = SORT_MID_ORG_POS.copy()
 SORT_SMALL_POS = SORT_SMALL_ORG_POS.copy()
 
 #裝疊座標
-STACK_POS = [[310.0   ,210.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [310.0   ,325.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [310.0   ,445.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+STACK_POS = [[360.0   ,205.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [360.0   ,320.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [360.0   ,440.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
              [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
 
 TEST_POS1 = [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(右上)
-TEST_POS2 = [-343.0 ,450.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(右下)
-TEST_POS3 = [310.0  ,210.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(左上)
-TEST_POS4 = [310.0  ,450.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(左下)
+TEST_POS2 = [-343.0 ,583.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(右下)
+TEST_POS4 = [360.0  ,202.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,270.0] #測試位置(左上)
+TEST_POS3 = [310.0  ,617.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,270.0] #測試位置(左下)
 
 #絕對移動
 def move_abs(s ,  mode , position):
@@ -144,6 +144,7 @@ def testPos():
     
     move_abs(s ,  'PTP' , TEST_POS2)
     input('按任意鍵繼續')
+    move_rel(s ,  'PTP' , (0,0,0,0,0,90))
     move_abs(s ,  'PTP' , TEST_POS3)
     input('按任意鍵繼續')
     move_abs(s ,  'PTP' , TEST_POS4)

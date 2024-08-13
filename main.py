@@ -7,9 +7,9 @@ import gui
 
 #基本參數
 IP = "192.168.0.2"
-speedRate= 10 #速度比例
-putSpeedRate = 5 #放料速度比例
-accRatio = 35 #加速度比例
+speedRate= 100 #速度比例
+putSpeedRate = 18 #放料速度比例
+accRatio = 23 #加速度比例
 getAccRatio = 15 #取料加速度比例
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
 EXTEND_TABLE_HEIGHT= -260 #延伸檯面絕對高度
@@ -54,14 +54,15 @@ SORT_MID_POS = SORT_MID_ORG_POS.copy()
 SORT_SMALL_POS = SORT_SMALL_ORG_POS.copy()
 
 #裝疊座標
-STACK_ORG_POS = [[310.0   ,210.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-                [310.0   ,325.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-                [310.0   ,445.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-                [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
+STACK_ORG_POS = [[370.0   ,205.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [370.0   ,320.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [370.0   ,440.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
+             [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
 
-STACK_POS = [[310.0   ,210.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
-             [310.0   ,325.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
-             [310.0   ,445.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
+
+STACK_POS = [[370.0   ,210.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
+             [370.0   ,325.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
+             [370.0   ,445.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
              [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0]] 
 
 isSubmitOrder = False
@@ -165,7 +166,7 @@ def getCubeType():
 
 def getSourceCube():
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定取料速度
-    HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
+    time.sleep(0.1)
     move_rel(s,'PTP',(0,0,-GET_CUBE_STEP,0,0,0)) #放下夾爪
     HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
 
@@ -175,25 +176,32 @@ def getSourceCube():
     cubeType = getCubeType() #取得方塊類型
     time.sleep(0.3)
 
+    HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
+    time.sleep(0.1)
     move_rel(s,'PTP',(0,0,GET_CUBE_STEP + 70,0,0,0)) #抬起夾爪
     HIWIN_Python.set_acc_dec_ratio(s,accRatio) #恢復加速度
+    time.sleep(0.1)
     return cubeType
 
 def getSortedCube(cubeType, orgSlotNumber, requireStackCube, slotCubeType): #for stack
     moveOffset = 0
+    upOffset = 0
     getCubes = 0
 
     if cubeType == 'LARGE':
         moveOffset = 105
+        upOffset = moveOffset
 
     elif cubeType == 'MID':
         moveOffset = 120
+        upOffset = moveOffset
 
     elif cubeType == 'SMALL':
         moveOffset = 145
+        upOffset = moveOffset
 
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定取料速度
-    HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
+    time.sleep(0.1)
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
     HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
 
@@ -207,8 +215,11 @@ def getSortedCube(cubeType, orgSlotNumber, requireStackCube, slotCubeType): #for
             break
 
     time.sleep(0.3)
-    move_rel(s,'PTP',(0,0,moveOffset,0,0,0)) #抬起夾爪
+    HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
+    time.sleep(0.1)
+    move_rel(s,'PTP',(0,0,upOffset,0,0,0)) #抬起夾爪
     HIWIN_Python.set_acc_dec_ratio(s,accRatio) #恢復加速度
+    time.sleep(0.1)
     return getCubes
 
 def checkGetPosValid(cubeType, orginSlotNumber, targetSlotNumber):
@@ -239,7 +250,7 @@ def placeSourceCube(cubeType, slotNumber):
         moveOffset = 140
 
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定放料速度
-    HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
+    time.sleep(0.1)
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
     HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
 
@@ -251,8 +262,11 @@ def placeSourceCube(cubeType, slotNumber):
             break
     
     time.sleep(0.1)
+    HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
+    time.sleep(0.1)
     move_rel(s,'PTP',(0,0,moveOffset,0,0,0)) #抬起夾爪
     HIWIN_Python.set_acc_dec_ratio(s,accRatio) #恢復加速度
+    time.sleep(0.1)
     return placeCubes
 
 def checkPutPosValid(cubeType, orginSlotNumber, targetSlotNumber):
@@ -272,7 +286,6 @@ def checkPutPosValid(cubeType, orginSlotNumber, targetSlotNumber):
     return True
 
 def placeSortedCube(cubeType, slotNumber): #for stack
-    move_rel(s,'PTP',(GRAB_UNIT_OFFSET*(slotNumber-1),0,0,0,0,0)) #夾爪偏移
     downOffset = 0
     upOffset = 0
 
@@ -287,13 +300,15 @@ def placeSortedCube(cubeType, slotNumber): #for stack
         upOffset = downOffset + SMALL_CUBE_SIZE
 
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定放料速度
-    HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
+    time.sleep(0.1)
     move_rel(s,'PTP',(0,0,-downOffset,0,0,0)) #放下夾爪
     HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[slotNumber], False) #關閉電磁閥
+    HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
     time.sleep(0.1)
     move_rel(s,'PTP',(0,0,upOffset,0,0,0)) #抬起夾爪
     HIWIN_Python.set_acc_dec_ratio(s,accRatio) #恢復加速度
+    time.sleep(0.1)
 
 def changeLargePos(offset):
     global largePosCounter
@@ -363,7 +378,7 @@ def checkOrderVaild(order, orderNum):
         print("Error: order is 0")
         return False
     
-    if sum(order) > 4:
+    if sum(order) > 3:
         print("Error: order overflow")
         return False
     
@@ -405,21 +420,18 @@ if __name__=='__main__':
             if cubeType[j] == 'LARGE':
                 print(f"\nsort \'large\' cube slot:{j}")
                 move_abs_offset(s,'PTP', SORT_LARGE_POS.copy(), 0, GRAB_UNIT_OFFSET*(1-j)) #移動至分揀位置
-                #move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-j),0,0,0,0)) #夾爪偏移
                 placeCubes = placeSourceCube(cubeType,j)
                 changeLargePos(placeCubes)
 
             elif cubeType[j] == 'MID':
                 print(f"\nsort \'mid\' cube slot:{j}")
                 move_abs_offset(s,'PTP',SORT_MID_POS.copy(), 0, GRAB_UNIT_OFFSET*(1-j)) #移動至分揀位置
-                #move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-j),0,0,0,0)) #夾爪偏移
                 placeCubes = placeSourceCube(cubeType,j)
                 changeMidPos(placeCubes)
 
             elif cubeType[j] == 'SMALL':
                 print(f"\nsort \'small\' cube slot:{j}")
                 move_abs_offset(s,'PTP',SORT_SMALL_POS.copy(), 0, GRAB_UNIT_OFFSET*(1-j)) #移動至分揀位置
-                #move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-j),0,0,0,0)) #夾爪偏移
                 placeCubes = placeSourceCube(cubeType,j)
                 changeSmallPos(placeCubes)
 
@@ -453,21 +465,18 @@ if __name__=='__main__':
 
                 if stackOrder[i][0] > 0:
                     move_abs_offset(s, 'PTP', SORT_LARGE_POS.copy(), 0, GRAB_UNIT_OFFSET*(1-j)) #移動至分揀位置
-                    #move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-j),0,0,0,0)) #夾爪偏移
                     getCubes = getSortedCube('LARGE', j, stackOrder[i][0], slotCubeType) #取得方塊
                     stackOrder[i][0] -= getCubes 
                     changeLargePos(-getCubes)
                     
                 elif stackOrder[i][1] > 0:
                     move_abs_offset(s, 'PTP', SORT_MID_POS.copy(),0, GRAB_UNIT_OFFSET*(1-j)) #移動至分揀位置
-                    #move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-j),0,0,0,0)) #夾爪偏移
                     getCubes = getSortedCube('MID', j, stackOrder[i][1], slotCubeType) #取得方塊
                     stackOrder[i][1] -= getCubes
                     changeMidPos(-getCubes) #更新位置
 
                 elif stackOrder[i][2] > 0:
                     move_abs_offset(s, 'PTP', SORT_SMALL_POS.copy(),0, GRAB_UNIT_OFFSET*(1-j)) #移動至分揀位置
-                    #move_rel(s,'PTP',(0,GRAB_UNIT_OFFSET*(1-j),0,0,0,0)) #夾爪偏移
                     getCubes = getSortedCube('SMALL', j, stackOrder[i][2], slotCubeType) #取得方塊
                     stackOrder[i][2] -= getCubes
                     changeSmallPos(-getCubes) #更新位置
@@ -477,14 +486,16 @@ if __name__=='__main__':
 
             # 放置方塊
             for j in range(2, -1, -1):
-                move_abs(s, 'PTP', STACK_POS[i])
+                move_abs_offset(s,'PTP',STACK_POS[i].copy(), GRAB_UNIT_OFFSET*(j-1), 0) #移動至分揀位置
 
                 if slotCubeType[j] == 'LARGE':
                     placeSortedCube('LARGE', j)
                     STACK_POS[i][2] += LARGE_CUBE_SIZE #更新高度
+                    
                 elif slotCubeType[j] == 'MID':
                     placeSortedCube('MID', j)
                     STACK_POS[i][2] += MID_CUBE_SIZE #更新高度
+
                 elif slotCubeType[j] == 'SMALL':
                     placeSortedCube('SMALL', j)
                     STACK_POS[i][2] += SMALL_CUBE_SIZE #更新高度
