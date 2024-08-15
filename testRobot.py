@@ -35,16 +35,15 @@ SORT_LARGE_POS = SORT_LARGE_ORG_POS.copy()
 SORT_MID_POS = SORT_MID_ORG_POS.copy()
 SORT_SMALL_POS = SORT_SMALL_ORG_POS.copy()
 
-#裝疊座標
-STACK_POS = [[360.0   ,205.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [360.0   ,320.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [360.0   ,440.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
-             [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
+STACK_POS = [[360.0   ,205.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
+            [360.0   ,320.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
+            [360.0   ,440.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
+            [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0]] 
 
-TEST_POS1 = [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(右上)
-TEST_POS2 = [-343.0 ,583.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,180.0] #測試位置(右下)
-TEST_POS4 = [360.0  ,202.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,270.0] #測試位置(左上)
-TEST_POS3 = [310.0  ,617.0  ,WORK_TABLE_HEIGHT + 60  ,180.0  ,0.0  ,270.0] #測試位置(左下)
+TEST_POS1 = [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 80  ,180.0  ,0.0  ,180.0] #測試位置(右上)
+TEST_POS2 = [-343.0 ,583.0  ,WORK_TABLE_HEIGHT + 50  ,180.0  ,0.0  ,180.0] #測試位置(右下)
+TEST_POS3 = [310.0  ,617.0  ,WORK_TABLE_HEIGHT + 50  ,180.0  ,0.0  ,270.0] #測試位置(左下)
+TEST_POS4 = [360.0  ,205.0  ,WORK_TABLE_HEIGHT + 80  ,180.0  ,0.0  ,270.0] #測試位置(左上)
 
 #絕對移動
 def move_abs(s ,  mode , position):
@@ -84,12 +83,12 @@ def move_axis(s ,  mode , position):
 def init():
     s=HIWIN_Python.connect_robot(IP,1) #連線
     HIWIN_Python.clear_alarm(s)
-    time.sleep(0.3)
+    time.sleep(0.2)
 
     HIWIN_Python.set_connection_level(s,1)
     HIWIN_Python.set_operation_mode(s,0) #0自動,1手動
     HIWIN_Python.set_motor_state(s,1) #啟動馬達
-    time.sleep(0.3)
+    time.sleep(0.2)
 
     #設定速度
     HIWIN_Python.set_acc_dec_ratio(s,100)
@@ -98,7 +97,7 @@ def init():
 
     #設定移動%
     HIWIN_Python.set_override_ratio(s,speedRate) #設定整體速度 int set_override_ratio(HROBOT robot, double value)#整體速度比例:1-100(%)
-    time.sleep(0.3)
+    time.sleep(0.2)
 
     move_abs(s ,  'PTP' , HOME_POS)
     return s
@@ -116,16 +115,16 @@ def testMove():
 def testIO():
     input('按任意鍵開始IO測試')
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], True) #開啟電磁閥
-    time.sleep(0.6)
+    time.sleep(0.5)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], True) #開啟電磁閥
-    time.sleep(0.6)
+    time.sleep(0.5)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], True) #開啟電磁閥
-    time.sleep(1)
+    time.sleep(0.8)
 
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], False) #關閉電磁閥
-    time.sleep(0.6)
+    time.sleep(0.5)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], False) #關閉電磁閥
-    time.sleep(0.6)
+    time.sleep(0.5)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], False) #關閉電磁閥
 
     print('按下開始按鈕')
@@ -149,6 +148,7 @@ def testPos():
     input('按任意鍵繼續')
     move_abs(s ,  'PTP' , TEST_POS4)
     input('按任意鍵繼續')
+    move_rel(s ,  'PTP' , (0,0,0,0,0,-90))
     move_abs(s ,  'PTP' , SORT_LARGE_POS)
     input('按任意鍵繼續')
     move_abs(s ,  'PTP' , SORT_MID_POS)
@@ -213,7 +213,7 @@ def testGetPut():
     input('按任鍵開始取料測試')
     move_abs(s ,  'PTP' , GET_CUBE_POS)
     
-    HIWIN_Python.set_override_ratio(s,15)
+    HIWIN_Python.set_override_ratio(s,20)
     move_rel(s ,  'PTP' , (0,0,GET_CUBE_STEP*-1,0,0,0))
     HIWIN_Python.set_override_ratio(s,speedRate)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], True) # Open slot IO 1#啟動電磁閥
@@ -226,14 +226,14 @@ def testGetPut():
     move_abs(s ,  'PTP' , PLACE_READY_POS)
     move_rel(s ,  'PTP' , (0,0,0,0,0,90))
 
-    placeOffset = 100
+    placeOffset = 105
     HIWIN_Python.set_override_ratio(s,15)
     move_rel(s ,  'PTP' , (0,0,-placeOffset,0,0,0))
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], False) 
     HIWIN_Python.set_override_ratio(s,speedRate)
     move_rel(s ,  'PTP' , (0,0,placeOffset,0,0,0))
     
-    placeOffset = 115
+    placeOffset = 120
     HIWIN_Python.set_override_ratio(s,15)
     move_rel(s ,  'PTP' , (0,0,-placeOffset,0,0,0))
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], False) 

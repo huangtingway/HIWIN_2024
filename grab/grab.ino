@@ -89,16 +89,6 @@ void loop() {
 
                 delay(100);
             }
-        }else if (str == "testHeight") {
-            if(digitalRead(11) == 1){
-              isTouchTable = true;
-            }
-
-            if(isTouchTable){
-              Serial.println("stop"); 
-            }else{
-              Serial.println("empty");
-            }
         }
     }
   

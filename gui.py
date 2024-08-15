@@ -1,4 +1,5 @@
-from tkinter import Tk, Label, Button, Spinbox, Frame, Canvas
+from tkinter import Tk, Label, Button, Spinbox, Frame, Canvas, messagebox
+
 isSubmitOrder = False
 
 # Function to clear the quantities
@@ -21,7 +22,7 @@ def create_order_frame(root, order_num):
     
     # Medium product
     medium_spinbox = Spinbox(frame, from_=0, to=100, width=5, font=("Arial", 18))
-    medium_spinbox.grid(row=0, column=3, padx=5,ipady=12)
+    medium_spinbox.grid(row=0, column=3, padx=5, ipady=12)
     
     # Small product
     small_spinbox = Spinbox(frame, from_=0, to=100, width=5, font=("Arial", 18))
@@ -41,9 +42,15 @@ def submit():
     stackOrder = []
 
     for i, order in enumerate(orders, start=1):
-        large, medium, small = [spinbox.get() for spinbox in order]
+        large, medium, small = [int(spinbox.get()) for spinbox in order]
+        total_quantity = large + medium + small
+
+        if total_quantity >= 4:
+            messagebox.showerror("Error", f"Order {i} must have under 3 items in total.")
+            return  # Exit the function if any order has fewer than 4 items
+
         print(f"Order {i}: Large={large}, Medium={medium}, Small={small}")
-        stackOrder.append([int(large), int(medium), int(small)])
+        stackOrder.append([large, medium, small])
 
     isSubmitOrder = True  # Set the flag to True
     root.destroy()  # Close the form
@@ -81,3 +88,5 @@ def show_form():
     submit_button.pack(side='right', padx=15, pady=10)
 
     root.mainloop()
+
+show_form()
