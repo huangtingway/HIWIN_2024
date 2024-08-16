@@ -259,8 +259,8 @@ if __name__=='__main__':
     input('預備執行任務，請按任意鍵繼續')
     move_abs(s ,  'PTP' , READY_POS)
 
-    #testMove()
-    #testIO()
+    testMove()
+    testIO()
     testPos()
     testGrab()
     testGetPut()

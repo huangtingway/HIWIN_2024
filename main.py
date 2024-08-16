@@ -8,11 +8,12 @@ import gui
 #基本參數
 IP = "192.168.0.2"
 speedRate= 100 #速度比例
-putSpeedRate = 15 #放料速度比例
-accRatio = 20 #加速度比例
+putSpeedRate = 20 #放料速度比例
+accRatio = 25 #加速度比例
 getAccRatio = 12 #取料加速度比例
+emptyAccRatio = 50 #空轉加速度比例
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -260 #延伸檯面絕對高度
+EXTEND_TABLE_HEIGHT= -250 #延伸檯面絕對高度
 GET_CUBE_STEP = 65 #取料步伐
 GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸
@@ -100,8 +101,8 @@ def move_abs(s ,  mode , position):
     if (mode == 'LIN'):
         HIWIN_Python.lin_pos_edited(s,0,0.0,*position)
         while HIWIN_Python.get_motion_state(s) != 1:
-            time.sleep(0.01)
-        time.sleep(0.05)
+            time.sleep(0.05)
+        time.sleep(0.01)
 
     print(f"  Move abs ({position[0]},{position[1]},{position[2]})")
 
@@ -395,6 +396,8 @@ if __name__=='__main__':
     #分揀-----------------------------------------------------------------------------------------------
     for i in range(4):
         print(f"-----------------------------\nget source cube {i}")
+        HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
+        time.sleep(0.05)
         move_abs(s,'PTP',GET_CUBE_READY_POS) #移動至取料預備位置
         move_abs(s,'PTP',GET_CUBE_POS) #移動至取料位置
         cubeType = getSourceCube()
@@ -432,6 +435,8 @@ if __name__=='__main__':
         grab.write(b'clear\n') #清除夾爪
 
     print(f"-----------------------------\nfinish sorting\n")
+    HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
+    time.sleep(0.05)
     move_abs(s,'PTP',HOME_POS) #回到預備位置
     changeLargePos(-1) #reset largePosCounter
     changeMidPos(-1) #reset midPosCounter
@@ -492,11 +497,15 @@ if __name__=='__main__':
                     placeSortedCube('SMALL', j)
                     STACK_POS[i][2] += SMALL_CUBE_SIZE #更新高度
 
+            HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
+            time.sleep(0.05)
             move_rel(s,'PTP',(0,0,0,0,0,-90))
             slotCubeType = ["NULL","NULL","NULL"] #reset slotCubeType
     
     print(f"-----------------------------\nfinish stacking\n")
    
+    HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
+    time.sleep(0.05)
     move_abs(s,'PTP',HOME_POS)#回原點位置 
     HIWIN_Python.disconnect(s)#斷開連接
 

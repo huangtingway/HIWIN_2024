@@ -88,5 +88,3 @@ def show_form():
     submit_button.pack(side='right', padx=15, pady=10)
 
     root.mainloop()
-
-show_form()
