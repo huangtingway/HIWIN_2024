@@ -4,7 +4,7 @@ import serial
 
 speedRate=80
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -260 #延伸檯面絕對高度
+EXTEND_TABLE_HEIGHT= -250 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
 SLOT_IO_INDEX = [9,10,11] #IO
 
@@ -259,9 +259,9 @@ if __name__=='__main__':
     input('預備執行任務，請按任意鍵繼續')
     move_abs(s ,  'PTP' , READY_POS)
 
-    testMove()
-    testIO()
-    testPos()
+    #testMove()
+    #testIO()
+    #testPos()
     testGrab()
     testGetPut()
     

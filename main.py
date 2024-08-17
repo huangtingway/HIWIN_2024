@@ -8,10 +8,10 @@ import gui
 #基本參數
 IP = "192.168.0.2"
 speedRate= 100 #速度比例
-putSpeedRate = 20 #放料速度比例
+putSpeedRate = 25 #放料速度比例
 accRatio = 25 #加速度比例
 getAccRatio = 12 #取料加速度比例
-emptyAccRatio = 50 #空轉加速度比例
+emptyAccRatio = 70 #空轉加速度比例
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
 EXTEND_TABLE_HEIGHT= -250 #延伸檯面絕對高度
 GET_CUBE_STEP = 65 #取料步伐
@@ -391,13 +391,12 @@ if __name__=='__main__':
         time.sleep(0.05)
 
     grab.write(b'blink\n')
+    HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
     time.sleep(0.2)
 
     #分揀-----------------------------------------------------------------------------------------------
     for i in range(4):
         print(f"-----------------------------\nget source cube {i}")
-        HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
-        time.sleep(0.05)
         move_abs(s,'PTP',GET_CUBE_READY_POS) #移動至取料預備位置
         move_abs(s,'PTP',GET_CUBE_POS) #移動至取料位置
         cubeType = getSourceCube()
@@ -431,8 +430,10 @@ if __name__=='__main__':
                 changeSmallPos(placeCubes)
 
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
-        move_rel(s,'PTP',(0,0,0,0,0,-90))
         grab.write(b'clear\n') #清除夾爪
+        HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
+        time.sleep(0.05)
+        move_rel(s,'PTP',(0,0,0,0,0,-90))
 
     print(f"-----------------------------\nfinish sorting\n")
     HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
@@ -442,7 +443,7 @@ if __name__=='__main__':
     changeMidPos(-1) #reset midPosCounter
     changeSmallPos(-1) #reset smallPosCounter
     grab.write(b'blink\n') #夾爪閃爍
-    time.sleep(0.2)
+    time.sleep(0.3)
 
     #裝疊-----------------------------------------------------------------------------------------------
     stackOrder = gui.stackOrder
