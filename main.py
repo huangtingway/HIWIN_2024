@@ -40,7 +40,7 @@ smallPosCounter = [0,0]
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
 READY_POS = [0.0   ,470.0  ,140.0  ,180.0  ,0.0  ,90.0] #預備位置
-READY_AXIS = [0,-17,1.492,0,-73.6,0]
+#READY_AXIS = [0,-17,1.492,0,-73.6,0]
 
 #分揀座標
 GET_CUBE_READY_POS = [-550.0 ,-80.0  ,130.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
@@ -367,12 +367,20 @@ def changeSmallPos(offset):
     print(f"smallPosCounter:{smallPosCounter}")
 
 def checkOrderVaild(order, orderNum):
+    totalLarge = largePosCounter[0]*3 + largePosCounter[1]
+    totalMid = midPosCounter[0]*3 + midPosCounter[1]
+    totalSmall = smallPosCounter[0]*3 + smallPosCounter[1]
+    
     if sum(order) == 0 :
         print("Error: order is 0")
         return False
     
     if sum(order) > 3:
         print("Error: order overflow")
+        return False
+    
+    if totalLarge < order[0] or totalMid < order[1] or totalSmall < order[2]:
+        print("Error: not enough cube")
         return False
     
     return True
@@ -430,14 +438,12 @@ if __name__=='__main__':
                 changeSmallPos(placeCubes)
 
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
-        grab.write(b'clear\n') #清除夾爪
         HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
         time.sleep(0.05)
         move_rel(s,'PTP',(0,0,0,0,0,-90))
+        grab.write(b'clear\n') #清除夾爪
 
     print(f"-----------------------------\nfinish sorting\n")
-    HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
-    time.sleep(0.05)
     move_abs(s,'PTP',HOME_POS) #回到預備位置
     changeLargePos(-1) #reset largePosCounter
     changeMidPos(-1) #reset midPosCounter
@@ -504,9 +510,6 @@ if __name__=='__main__':
             slotCubeType = ["NULL","NULL","NULL"] #reset slotCubeType
     
     print(f"-----------------------------\nfinish stacking\n")
-   
-    HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
-    time.sleep(0.05)
     move_abs(s,'PTP',HOME_POS)#回原點位置 
     HIWIN_Python.disconnect(s)#斷開連接
 
