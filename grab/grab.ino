@@ -33,7 +33,7 @@ void loop() {
             if(distance1 <= 8){ //small
                 digitalWrite(2,1);
                 resultMsg += "SMALL ";
-            }else if(distance1 <= 30){ //mid
+            }else if(distance1 <=  35){ //mid
                 digitalWrite(3,1);
                 resultMsg += "MID ";
             }else{ //large
@@ -44,7 +44,7 @@ void loop() {
             if(distance2 <= 8){ //small
                 digitalWrite(5,1);
                 resultMsg += "SMALL ";
-            }else if(distance2 <= 30){ //mid
+            }else if(distance2 <= 35){ //mid
                 digitalWrite(6,1);
                 resultMsg += "MID ";
             }else{ //large
@@ -55,7 +55,7 @@ void loop() {
             if(distance3 <= 8){ //small
                 digitalWrite(8,1);
                 resultMsg += "SMALL ";
-            }else if(distance3 <= 30){ //mid
+            }else if(distance3 <= 35){ //mid
                 digitalWrite(9,1);
                 resultMsg += "MID ";
             }else{ //large

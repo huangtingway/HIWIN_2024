@@ -4,7 +4,7 @@ import serial
 
 speedRate=80
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -250 #延伸檯面絕對高度
+EXTEND_TABLE_HEIGHT= -244 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
 SLOT_IO_INDEX = [9,10,11] #IO
 
@@ -261,7 +261,7 @@ if __name__=='__main__':
 
     #testMove()
     #testIO()
-    #testPos()
+    testPos()
     testGrab()
     testGetPut()
     

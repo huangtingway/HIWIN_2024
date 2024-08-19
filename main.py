@@ -8,12 +8,12 @@ import gui
 #基本參數
 IP = "192.168.0.2"
 speedRate= 100 #速度比例
-putSpeedRate = 25 #放料速度比例
-accRatio = 25 #加速度比例
-getAccRatio = 12 #取料加速度比例
-emptyAccRatio = 70 #空轉加速度比例
+putSpeedRate = 25 #放料速度比例(max:25%)
+accRatio = 20 #加速度比例(max:25%)
+getAccRatio = 10 #取料加速度比例(max:12%)
+emptyAccRatio = 70 #空轉加速度比例(max:70%)
 WORK_TABLE_HEIGHT= -20 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -250 #延伸檯面絕對高度
+EXTEND_TABLE_HEIGHT= -244 #延伸檯面絕對高度
 GET_CUBE_STEP = 65 #取料步伐
 GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸
@@ -379,9 +379,9 @@ def checkOrderVaild(order, orderNum):
         print("Error: order overflow")
         return False
     
-    if totalLarge < order[0] or totalMid < order[1] or totalSmall < order[2]:
-        print("Error: not enough cube")
-        return False
+    # if totalLarge < order[0] or totalMid < order[1] or totalSmall < order[2]:
+    #     print("Error: not enough cube")
+    #     return False
     
     return True
 
