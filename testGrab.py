@@ -29,7 +29,7 @@ if __name__=='__main__':
             break
 
         getCubeType()
-        time.sleep(3)
+        time.sleep(1.5)
         grab.write(b'clear\n')
 
     grab.write(b'blink\n')

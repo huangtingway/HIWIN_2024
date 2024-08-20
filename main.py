@@ -12,7 +12,7 @@ putSpeedRate = 25 #放料速度比例(max:25%)
 accRatio = 20 #加速度比例(max:25%)
 getAccRatio = 10 #取料加速度比例(max:12%)
 emptyAccRatio = 70 #空轉加速度比例(max:70%)
-WORK_TABLE_HEIGHT= -20 #桌面絕對高度
+WORK_TABLE_HEIGHT= -25 #桌面絕對高度
 EXTEND_TABLE_HEIGHT= -244 #延伸檯面絕對高度
 GET_CUBE_STEP = 65 #取料步伐
 GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
@@ -187,13 +187,13 @@ def getSortedCube(cubeType, orgSlotNumber, requireStackCube, slotCubeType): #for
     getCubes = 0
 
     if cubeType == 'LARGE':
-        moveOffset = 105
+        moveOffset = 100
 
     elif cubeType == 'MID':
-        moveOffset = 120
+        moveOffset = 115
 
     elif cubeType == 'SMALL':
-        moveOffset = 145
+        moveOffset = 140
 
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定取料速度
     time.sleep(0.05)
@@ -237,9 +237,9 @@ def placeSourceCube(cubeType, slotNumber):
     placeCubes = 0
 
     if cubeType[slotNumber] == 'LARGE':
-       moveOffset = 105
+       moveOffset = 100
     elif cubeType[slotNumber] == 'MID':
-       moveOffset = 120
+       moveOffset = 115
     elif cubeType[slotNumber] == 'SMALL':
         moveOffset = 140
 
@@ -283,13 +283,13 @@ def placeSortedCube(cubeType, slotNumber): #for stack
     upOffset = 0
 
     if cubeType == 'LARGE':
-        downOffset = 30
+        downOffset = 25
         upOffset = downOffset + LARGE_CUBE_SIZE
     elif cubeType == 'MID':
-        downOffset = 45
+        downOffset = 40
         upOffset = downOffset + MID_CUBE_SIZE
     elif cubeType == 'SMALL':
-        downOffset = 70
+        downOffset = 65
         upOffset = downOffset + SMALL_CUBE_SIZE
 
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定放料速度

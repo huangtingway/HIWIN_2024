@@ -148,21 +148,7 @@ def testPos():
     input('按任意鍵繼續')
     move_abs(s ,  'PTP' , TEST_POS4)
     input('按任意鍵繼續')
-    move_rel(s ,  'PTP' , (0,0,0,0,0,-90))
-    move_abs(s ,  'PTP' , SORT_LARGE_POS)
-    input('按任意鍵繼續')
-    move_abs(s ,  'PTP' , SORT_MID_POS)
-    input('按任意鍵繼續')
-    move_abs(s ,  'PTP' , SORT_SMALL_POS)
-    input('按任意鍵繼續')
-    move_abs(s ,  'PTP' , STACK_POS[0])
-    input('按任意鍵繼續')
-    move_abs(s ,  'PTP' , STACK_POS[1])
-    input('按任意鍵繼續')
-    move_abs(s ,  'PTP' , STACK_POS[2])
-    input('按任意鍵繼續')
-    move_abs(s ,  'PTP' , STACK_POS[3])
-    input('按任意鍵繼續')
+   
     move_rel(s ,  'PTP' , (0,0,0,0,0,-90))
     move_rel(s ,  'PTP' , (0,0,0,0,0,-90))
     #move_axis(s ,  'PTP' , (0,-17,1.492,0,-73.6,0))
@@ -220,7 +206,7 @@ def testGetPut():
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], True) # Open slot IO 2
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], True) # Open slot IO 3
     time.sleep(0.3)
-    move_rel(s ,  'PTP' , (0,0,GET_CUBE_STEP,0,0,0))
+    move_rel(s ,  'PTP' , (0,0,GET_CUBE_STEP+80,0,0,0))
 
     move_abs(s ,  'PTP' , GET_CUBE_READY_POS)
     move_abs(s ,  'PTP' , PLACE_READY_POS)
@@ -259,8 +245,8 @@ if __name__=='__main__':
     input('預備執行任務，請按任意鍵繼續')
     move_abs(s ,  'PTP' , READY_POS)
 
-    #testMove()
-    #testIO()
+    testMove()
+    testIO()
     testPos()
     testGrab()
     testGetPut()
