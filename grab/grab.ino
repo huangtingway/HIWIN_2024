@@ -30,7 +30,7 @@ void loop() {
             int distance2 = 60 - map(analogRead(A2),0,1024,0,60); //slot2
             int distance3 = 60 - map(analogRead(A3),0,1024,0,60); //slot3
 
-            if(distance1 <= 8){ //small
+            if(distance1 <= 12){ //small
                 digitalWrite(2,1);
                 resultMsg += "SMALL ";
             }else if(distance1 <=  35){ //mid
@@ -41,7 +41,7 @@ void loop() {
                 resultMsg += "LARGE ";
             }
 
-            if(distance2 <= 8){ //small
+            if(distance2 <= 12){ //small
                 digitalWrite(5,1);
                 resultMsg += "SMALL ";
             }else if(distance2 <= 35){ //mid
@@ -52,7 +52,7 @@ void loop() {
                 resultMsg += "LARGE ";
             }
 
-            if(distance3 <= 8){ //small
+            if(distance3 <= 12){ //small
                 digitalWrite(8,1);
                 resultMsg += "SMALL ";
             }else if(distance3 <= 35){ //mid

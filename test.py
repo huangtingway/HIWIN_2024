@@ -1,9 +1,13 @@
-SORT_LARGE_ORG_POS = [-343.0 ,254.0  ,160  ,180.0  ,0.0  ,180.0] #分揀位置原點(大)
+SLOT_CUBE_TYPE = ["SMALL", "SMALL", "SMALL"]
 
-def test(position, testval):
-    position[2] += testval
-    print(position)
+def test(slotCubeType):
+    if 'LARGE' in slotCubeType:
+        print("LARGE")
+    elif 'MID' in slotCubeType:
+        print("MID")
+    elif 'SMALL' in slotCubeType:
+        print("SMALL")
 
-print(SORT_LARGE_ORG_POS)
-test(SORT_LARGE_ORG_POS.copy(), 100)
-print(SORT_LARGE_ORG_POS)
+print(SLOT_CUBE_TYPE)
+test(SLOT_CUBE_TYPE)
+print(SLOT_CUBE_TYPE)

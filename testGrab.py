@@ -7,6 +7,7 @@ def getCubeType():
     global grab
     grab.write(b'getType\n')
     time.sleep(0.2)
+    
 
     data_raw = grab.readline()  # 讀取一行
     data = data_raw.decode()   # 用預設的UTF-8解碼

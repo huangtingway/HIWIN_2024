@@ -3,8 +3,8 @@ import time
 import serial
 
 speedRate=80
-WORK_TABLE_HEIGHT= -20 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -244 #延伸檯面絕對高度
+WORK_TABLE_HEIGHT= -25 #桌面絕對高度
+EXTEND_TABLE_HEIGHT= -252 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
 SLOT_IO_INDEX = [9,10,11] #IO
 
@@ -16,7 +16,7 @@ HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
 READY_POS = [0.0   ,470.0  ,180.0  ,180.0  ,0.0  ,90.0] #預備位置
 
 #分揀參數
-GET_CUBE_STEP = 65 #取料步伐
+GET_CUBE_STEP = 68 #取料步伐
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
