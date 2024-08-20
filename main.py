@@ -13,8 +13,8 @@ accRatio = 20 #加速度比例(max:25%)
 getAccRatio = 10 #取料加速度比例(max:12%)
 emptyAccRatio = 70 #空轉加速度比例(max:70%)
 WORK_TABLE_HEIGHT= -25 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -244 #延伸檯面絕對高度
-GET_CUBE_STEP = 65 #取料步伐
+EXTEND_TABLE_HEIGHT= -252 #延伸檯面絕對高度
+GET_CUBE_STEP = 68 #取料步伐
 GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸
 MID_CUBE_SIZE = 55 #中方塊尺寸
@@ -178,8 +178,7 @@ def getSourceCube():
     HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
     time.sleep(0.3)
     move_rel(s,'PTP',(0,0,GET_CUBE_STEP + 70,0,0,0)) #抬起夾爪
-    HIWIN_Python.set_acc_dec_ratio(s,accRatio) #恢復加速度
-    time.sleep(0.1)
+    speedUp(cubeType)
     return cubeType
 
 def getSortedCube(cubeType, orgSlotNumber, requireStackCube, slotCubeType): #for stack
@@ -212,8 +211,7 @@ def getSortedCube(cubeType, orgSlotNumber, requireStackCube, slotCubeType): #for
     HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
     time.sleep(0.3)
     move_rel(s,'PTP',(0,0,moveOffset,0,0,0)) #抬起夾爪
-    HIWIN_Python.set_acc_dec_ratio(s,accRatio) #恢復加速度
-    time.sleep(0.1)
+    speedUp(slotCubeType)
     return getCubes
 
 def checkGetPosValid(cubeType, orginSlotNumber, targetSlotNumber):
@@ -252,14 +250,14 @@ def placeSourceCube(cubeType, slotNumber):
         if cubeType[i] == cubeType[slotNumber] and checkPutPosValid(cubeType[slotNumber], slotNumber, i) == True:
             placeCubes += 1
             HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[i], False) 
+            cubeType[i] = 'NULL'
         else:
             break
     
     HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
     time.sleep(0.1)
     move_rel(s,'PTP',(0,0,moveOffset,0,0,0)) #抬起夾爪
-    HIWIN_Python.set_acc_dec_ratio(s,accRatio) #恢復加速度
-    time.sleep(0.1)
+    speedUp(cubeType)
     return placeCubes
 
 def checkPutPosValid(cubeType, orginSlotNumber, targetSlotNumber):
@@ -367,9 +365,12 @@ def changeSmallPos(offset):
     print(f"smallPosCounter:{smallPosCounter}")
 
 def checkOrderVaild(order, orderNum):
-    totalLarge = largePosCounter[0]*3 + largePosCounter[1]
-    totalMid = midPosCounter[0]*3 + midPosCounter[1]
-    totalSmall = smallPosCounter[0]*3 + smallPosCounter[1]
+    global largePosCounter
+    global midPosCounter
+    global smallPosCounter
+    totalLarge = largePosCounter[0]*3 + largePosCounter[1] + 1
+    totalMid = midPosCounter[0]*3 + midPosCounter[1] + 1
+    totalSmall = smallPosCounter[0]*3 + smallPosCounter[1] + 1
     
     if sum(order) == 0 :
         print("Error: order is 0")
@@ -379,11 +380,22 @@ def checkOrderVaild(order, orderNum):
         print("Error: order overflow")
         return False
     
-    # if totalLarge < order[0] or totalMid < order[1] or totalSmall < order[2]:
-    #     print("Error: not enough cube")
-    #     return False
+    if totalLarge < order[0] or totalMid < order[1] or totalSmall < order[2]:
+        print("Error: not enough cube")
+        return False
     
     return True
+
+def speedUp(slotCubeType):
+    if 'LARGE' in slotCubeType:
+        HIWIN_Python.set_override_ratio(s,accRatio) #設定加速度
+    elif 'MID' in slotCubeType:
+        HIWIN_Python.set_override_ratio(s,accRatio + 15) 
+    elif 'SMALL' in slotCubeType:
+        HIWIN_Python.set_override_ratio(s,accRatio + 30)
+    
+    print(f"Speed up to {speedRate}%")
+    time.sleep(0.05)
 
 #MAIN=========================================================================================================
 if __name__=='__main__':
@@ -409,8 +421,8 @@ if __name__=='__main__':
         move_abs(s,'PTP',GET_CUBE_POS) #移動至取料位置
         cubeType = getSourceCube()
         move_abs(s,'PTP',GET_CUBE_READY_POS) #移動至取料預備位置
-        move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
         move_rel(s,'PTP',(0,0,0,0,0,90)) #轉90度
+        #move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
         
         placeCubes = 0 #放料數量
 
