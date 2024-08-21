@@ -130,7 +130,6 @@ def move_abs_offset(s ,  mode , position, x_offset, y_offset, z_offset=0):
         position[2] -= z_offset
         move_abs_offset(s,mode,position,0,0)
 
-
 #相對移動
 def move_rel(s ,  mode , position):
     if (mode == 'PTP'):
