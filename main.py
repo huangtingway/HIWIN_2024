@@ -8,13 +8,13 @@ import gui
 #基本參數
 IP = "192.168.0.2"
 speedRate= 100 #速度比例
-putSpeedRate = 25 #放料速度比例(max:25%)
+putSpeedRate = 35 #放料速度比例(max:35%)
 accRatio = 20 #加速度比例(max:25%)
 getAccRatio = 10 #取料加速度比例(max:12%)
-emptyAccRatio = 70 #空轉加速度比例(max:70%)
+emptyAccRatio = 80 #空轉加速度比例(max:80%)
 WORK_TABLE_HEIGHT= -25 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -252 #延伸檯面絕對高度
-GET_CUBE_STEP = 68 #取料步伐
+EXTEND_TABLE_HEIGHT= -125 #延伸檯面絕對高度
+GET_CUBE_STEP = 70 #取料步伐
 GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸
 MID_CUBE_SIZE = 55 #中方塊尺寸
@@ -28,7 +28,7 @@ BAUD_RATES = 9600
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
 PUT_CUBE_SMALL_XOFFSET = 60 #放料小X軸偏移
 PUT_CUBE_MID_XOFFSET = 72.5 #放料中X軸偏移
-PUT_CUBE_LARGE_XOFFSET = 80 #放料大X軸偏移
+PUT_CUBE_LARGE_XOFFSET = 82 #放料大X軸偏移
 
 PUT_CUBE_SMALL_YOFFSET = 80 #放料小Y軸偏移
 PUT_CUBE_MID_YOFFSET = 80 #放料中Y軸偏移
@@ -43,7 +43,7 @@ READY_POS = [0.0   ,470.0  ,140.0  ,180.0  ,0.0  ,90.0] #預備位置
 #READY_AXIS = [0,-17,1.492,0,-73.6,0]
 
 #分揀座標
-GET_CUBE_READY_POS = [-550.0 ,-80.0  ,130.0                     ,180.0  ,0.0  ,90.0] #取料預備位置
+GET_CUBE_READY_POS = [-550.0 ,-80.0  ,120.0                     ,180.0  ,0.0  ,180.0] #取料預備位置
 GET_CUBE_POS =       [-550.0 ,-250.0 ,EXTEND_TABLE_HEIGHT + 90 ,180.0  ,0.0  ,90.0] #來料位置
 PLACE_READY_POS =    [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,90.0] #分揀預備位置
 SORT_LARGE_ORG_POS = [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 160  ,180.0  ,0.0  ,180.0] #分揀位置原點(大)
@@ -60,10 +60,10 @@ STACK_ORG_POS = [[360.0   ,205.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
                 [360.0   ,440.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0],
                 [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 160,180.0  ,0.0  ,270.0]] 
 
-STACK_POS = [[360.0   ,205.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
-            [360.0   ,320.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
-            [360.0   ,440.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
-            [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0]] 
+STACK_POS = [[360.0   ,205.0  ,WORK_TABLE_HEIGHT + 15,180.0  ,0.0  ,270.0],
+            [360.0   ,320.0  ,WORK_TABLE_HEIGHT + 15,180.0  ,0.0  ,270.0],
+            [360.0   ,440.0  ,WORK_TABLE_HEIGHT + 15,180.0  ,0.0  ,270.0],
+            [-17.0   ,290.0  ,WORK_TABLE_HEIGHT + 15,180.0  ,0.0  ,270.0]] 
 
 isSubmitOrder = False
 stackOrder = [[0,0,0],[0,0,0],[0,0,0],[0,0,0]] #[large,mid,small]
@@ -107,9 +107,10 @@ def move_abs(s ,  mode , position):
     print(f"  Move abs ({position[0]},{position[1]},{position[2]})")
 
 #絕對移動
-def move_abs_offset(s ,  mode , position, x_offset, y_offset):
+def move_abs_offset(s ,  mode , position, x_offset, y_offset, z_offset=0):
     position[0] += x_offset
     position[1] += y_offset
+    position[2] += z_offset
 
     if (mode == 'PTP'):
         HIWIN_Python.ptp_pos_edited(s,1,*position)
@@ -124,6 +125,11 @@ def move_abs_offset(s ,  mode , position, x_offset, y_offset):
         time.sleep(0.01)
 
     print(f"  Move abs with offset ({position[0]},{position[1]},{position[2]})")
+
+    if z_offset != 0:
+        position[2] -= z_offset
+        move_abs_offset(s,mode,position,0,0)
+
 
 #相對移動
 def move_rel(s ,  mode , position):
@@ -244,13 +250,14 @@ def placeSourceCube(cubeType, slotNumber):
     HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定放料速度
     time.sleep(0.05)
     move_rel(s,'PTP',(0,0,-moveOffset,0,0,0)) #放下夾爪
+
     HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
 
     for i in range(slotNumber, 3): #關閉電磁閥
         if cubeType[i] == cubeType[slotNumber] and checkPutPosValid(cubeType[slotNumber], slotNumber, i) == True:
             placeCubes += 1
             HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[i], False) 
-            cubeType[i] = 'NULL'
+            #cubeType[i] = 'NULL'
         else:
             break
     
@@ -276,30 +283,31 @@ def checkPutPosValid(cubeType, orginSlotNumber, targetSlotNumber):
     
     return True
 
-def placeSortedCube(cubeType, slotNumber): #for stack
-    downOffset = 0
-    upOffset = 0
+def placeSortedCube(slotNumber): #for stack
+    downOffset = 12
+    upOffset = LARGE_CUBE_SIZE
 
-    if cubeType == 'LARGE':
-        downOffset = 25
-        upOffset = downOffset + LARGE_CUBE_SIZE
-    elif cubeType == 'MID':
-        downOffset = 40
-        upOffset = downOffset + MID_CUBE_SIZE
-    elif cubeType == 'SMALL':
-        downOffset = 65
-        upOffset = downOffset + SMALL_CUBE_SIZE
+    # if cubeType == 'LARGE':
+    #     #downOffset = 25
+    #     upOffset = downOffset + LARGE_CUBE_SIZE
+    # elif cubeType == 'MID':
+    #     #downOffset = 40
+    #     upOffset = downOffset + MID_CUBE_SIZE
+    # elif cubeType == 'SMALL':
+    #     #downOffset = 65
+    #     upOffset = downOffset + SMALL_CUBE_SIZE
 
-    HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定放料速度
-    time.sleep(0.05)
+    # HIWIN_Python.set_override_ratio(s,putSpeedRate) #設定放料速度
+    # time.sleep(0.05)
     move_rel(s,'PTP',(0,0,-downOffset,0,0,0)) #放下夾爪
-    HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
+    # HIWIN_Python.set_override_ratio(s,speedRate) #恢復速度
+
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[slotNumber], False) #關閉電磁閥
     HIWIN_Python.set_acc_dec_ratio(s,getAccRatio) #設定取料加速度
-    time.sleep(0.1)
-    move_rel(s,'PTP',(0,0,upOffset,0,0,0)) #抬起夾爪
+    time.sleep(0.05)
+    move_rel(s,'PTP',(0,0,upOffset + downOffset,0,0,0)) #抬起夾爪
     HIWIN_Python.set_acc_dec_ratio(s,accRatio) #恢復加速度
-    time.sleep(0.1)
+    time.sleep(0.05)
 
 def changeLargePos(offset):
     global largePosCounter
@@ -388,11 +396,11 @@ def checkOrderVaild(order, orderNum):
 
 def speedUp(slotCubeType):
     if 'LARGE' in slotCubeType:
-        HIWIN_Python.set_override_ratio(s,accRatio) #設定加速度
+        HIWIN_Python.set_acc_dec_ratio(s,accRatio) #設定加速度
     elif 'MID' in slotCubeType:
-        HIWIN_Python.set_override_ratio(s,accRatio + 15) 
+        HIWIN_Python.set_acc_dec_ratio(s,accRatio + 15) 
     elif 'SMALL' in slotCubeType:
-        HIWIN_Python.set_override_ratio(s,accRatio + 30)
+        HIWIN_Python.set_acc_dec_ratio(s,accRatio + 30)
     
     print(f"Speed up to {speedRate}%")
     time.sleep(0.05)
@@ -421,7 +429,7 @@ if __name__=='__main__':
         move_abs(s,'PTP',GET_CUBE_POS) #移動至取料位置
         cubeType = getSourceCube()
         move_abs(s,'PTP',GET_CUBE_READY_POS) #移動至取料預備位置
-        move_rel(s,'PTP',(0,0,0,0,0,90)) #轉90度
+        #move_rel(s,'PTP',(0,0,0,0,0,90)) #轉90度
         #move_abs(s,'PTP',PLACE_READY_POS) #移動至分揀位置
         
         placeCubes = 0 #放料數量
@@ -452,7 +460,7 @@ if __name__=='__main__':
         GET_CUBE_POS[1] += GET_CUBE_YOFFSET #下一個取料位置
         HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
         time.sleep(0.05)
-        move_rel(s,'PTP',(0,0,0,0,0,-90))
+        #move_rel(s,'PTP',(0,0,0,0,0,-90))
         grab.write(b'clear\n') #清除夾爪
 
     print(f"-----------------------------\nfinish sorting\n")
@@ -461,7 +469,7 @@ if __name__=='__main__':
     changeMidPos(-1) #reset midPosCounter
     changeSmallPos(-1) #reset smallPosCounter
     grab.write(b'blink\n') #夾爪閃爍
-    time.sleep(0.3)
+    time.sleep(0.25)
 
     #裝疊-----------------------------------------------------------------------------------------------
     stackOrder = gui.stackOrder
@@ -478,21 +486,26 @@ if __name__=='__main__':
                 if getCubes > 1:
                     getCubes -= 1
                     continue
+                
+                zOffset = 0
+
+                if j == 2 and stackOrder[i][0] == 0 and stackOrder[i][1] == 0: 
+                    zOffset = 140
 
                 if stackOrder[i][0] > 0:
-                    move_abs_offset(s, 'PTP', SORT_LARGE_POS.copy(), 0, GRAB_UNIT_OFFSET*(1-j)) #移動至分揀位置
+                    move_abs_offset(s, 'PTP', SORT_LARGE_POS.copy(), 0, GRAB_UNIT_OFFSET*(1-j),zOffset) #移動至分揀位置
                     getCubes = getSortedCube('LARGE', j, stackOrder[i][0], slotCubeType) #取得方塊
                     stackOrder[i][0] -= getCubes 
                     changeLargePos(-getCubes)
                     
                 elif stackOrder[i][1] > 0:
-                    move_abs_offset(s, 'PTP', SORT_MID_POS.copy(),0, GRAB_UNIT_OFFSET*(1-j)) #移動至分揀位置
+                    move_abs_offset(s, 'PTP', SORT_MID_POS.copy(),0, GRAB_UNIT_OFFSET*(1-j),zOffset) #移動至分揀位置
                     getCubes = getSortedCube('MID', j, stackOrder[i][1], slotCubeType) #取得方塊
                     stackOrder[i][1] -= getCubes
                     changeMidPos(-getCubes) #更新位置
 
                 elif stackOrder[i][2] > 0:
-                    move_abs_offset(s, 'PTP', SORT_SMALL_POS.copy(),0, GRAB_UNIT_OFFSET*(1-j)) #移動至分揀位置
+                    move_abs_offset(s, 'PTP', SORT_SMALL_POS.copy(),0, GRAB_UNIT_OFFSET*(1-j),zOffset) #移動至分揀位置
                     getCubes = getSortedCube('SMALL', j, stackOrder[i][2], slotCubeType) #取得方塊
                     stackOrder[i][2] -= getCubes
                     changeSmallPos(-getCubes) #更新位置
@@ -502,23 +515,24 @@ if __name__=='__main__':
 
             # 放置方塊
             for j in range(2, -1, -1):
-                move_abs_offset(s,'PTP',STACK_POS[i].copy(), GRAB_UNIT_OFFSET*(j-1), 0) #移動至裝疊位置
-
                 if slotCubeType[j] == 'LARGE':
-                    placeSortedCube('LARGE', j)
+                    #placeSortedCube('LARGE', j)
                     STACK_POS[i][2] += LARGE_CUBE_SIZE #更新高度
                     
                 elif slotCubeType[j] == 'MID':
-                    placeSortedCube('MID', j)
+                    #placeSortedCube('MID', j)
                     STACK_POS[i][2] += MID_CUBE_SIZE #更新高度
 
                 elif slotCubeType[j] == 'SMALL':
-                    placeSortedCube('SMALL', j)
+                    #placeSortedCube('SMALL', j)
                     STACK_POS[i][2] += SMALL_CUBE_SIZE #更新高度
+
+                move_abs_offset(s,'PTP',STACK_POS[i].copy(), GRAB_UNIT_OFFSET*(j-1), 0) #移動至裝疊位置
+                placeSortedCube(j)
 
             HIWIN_Python.set_acc_dec_ratio(s,emptyAccRatio) #設定空轉速度
             time.sleep(0.05)
-            move_rel(s,'PTP',(0,0,0,0,0,-90))
+            #move_rel(s,'PTP',(0,0,0,0,0,-90))
             slotCubeType = ["NULL","NULL","NULL"] #reset slotCubeType
     
     print(f"-----------------------------\nfinish stacking\n")

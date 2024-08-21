@@ -2,9 +2,9 @@ import HIWIN_Python
 import time
 import serial
 
-speedRate=80
+speedRate=55
 WORK_TABLE_HEIGHT= -25 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -252 #延伸檯面絕對高度
+EXTEND_TABLE_HEIGHT= -125 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
 SLOT_IO_INDEX = [9,10,11] #IO
 
@@ -16,7 +16,7 @@ HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
 READY_POS = [0.0   ,470.0  ,180.0  ,180.0  ,0.0  ,90.0] #預備位置
 
 #分揀參數
-GET_CUBE_STEP = 68 #取料步伐
+GET_CUBE_STEP = 70 #取料步伐
 GET_CUBE_YOFFSET = 80 #取料Y軸偏移
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
@@ -43,7 +43,7 @@ STACK_POS = [[360.0   ,205.0  ,WORK_TABLE_HEIGHT + 90,180.0  ,0.0  ,270.0],
 TEST_POS1 = [-343.0 ,254.0  ,WORK_TABLE_HEIGHT + 80  ,180.0  ,0.0  ,180.0] #測試位置(右上)
 TEST_POS2 = [-343.0 ,583.0  ,WORK_TABLE_HEIGHT + 50  ,180.0  ,0.0  ,180.0] #測試位置(右下)
 TEST_POS3 = [310.0  ,617.0  ,WORK_TABLE_HEIGHT + 50  ,180.0  ,0.0  ,270.0] #測試位置(左下)
-TEST_POS4 = [360.0  ,205.0  ,WORK_TABLE_HEIGHT + 80  ,180.0  ,0.0  ,270.0] #測試位置(左上)
+TEST_POS4 = [360.0  ,205.0  ,WORK_TABLE_HEIGHT + 90  ,180.0  ,0.0  ,270.0] #測試位置(左上)
 
 #絕對移動
 def move_abs(s ,  mode , position):
@@ -192,7 +192,7 @@ def testGrab():
     
     grab.write(b'clear\n')
     grab.write(b'blink\n')
-    time.sleep(1)
+    time.sleep(0.5)
     print('V 夾爪測試完成\n')
 
 def testGetPut():
@@ -207,28 +207,17 @@ def testGetPut():
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], True) # Open slot IO 3
     time.sleep(0.3)
     move_rel(s ,  'PTP' , (0,0,GET_CUBE_STEP+80,0,0,0))
+    HIWIN_Python.set_override_ratio(s,speedRate)
 
     move_abs(s ,  'PTP' , GET_CUBE_READY_POS)
     move_abs(s ,  'PTP' , PLACE_READY_POS)
     move_rel(s ,  'PTP' , (0,0,0,0,0,90))
 
-    placeOffset = 105
-    HIWIN_Python.set_override_ratio(s,15)
-    move_rel(s ,  'PTP' , (0,0,-placeOffset,0,0,0))
-    HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], False) 
-    HIWIN_Python.set_override_ratio(s,speedRate)
-    move_rel(s ,  'PTP' , (0,0,placeOffset,0,0,0))
-    
-    placeOffset = 120
-    HIWIN_Python.set_override_ratio(s,15)
-    move_rel(s ,  'PTP' , (0,0,-placeOffset,0,0,0))
-    HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], False) 
-    HIWIN_Python.set_override_ratio(s,speedRate)
-    move_rel(s ,  'PTP' , (0,0,placeOffset,0,0,0))
-    
     placeOffset = 140
     HIWIN_Python.set_override_ratio(s,15)
     move_rel(s ,  'PTP' , (0,0,-placeOffset,0,0,0))
+    HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[0], False)
+    HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[1], False)
     HIWIN_Python.set_digital_output(s, SLOT_IO_INDEX[2], False) 
     HIWIN_Python.set_override_ratio(s,speedRate)
     move_rel(s ,  'PTP' , (0,0,placeOffset,0,0,0))
@@ -241,12 +230,12 @@ if __name__=='__main__':
     global grab
     grab = serial.Serial(COM_PORT, BAUD_RATES) #夾爪通訊
     s = init()
-    time.sleep(2)
+    time.sleep(1)
     input('預備執行任務，請按任意鍵繼續')
     move_abs(s ,  'PTP' , READY_POS)
 
-    testMove()
-    testIO()
+    #testMove()
+    #testIO()
     testPos()
     testGrab()
     testGetPut()
