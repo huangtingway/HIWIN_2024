@@ -6,14 +6,14 @@ import ctypes
 import gui
 
 #基本參數
-IP = "192.168.0.2"
+IP = "192.168.0.4"
 speedRate= 100 #速度比例
 putSpeedRate = 35 #放料速度比例(max:35%)
 accRatio = 20 #加速度比例(max:25%)
 getAccRatio = 10 #取料加速度比例(max:12%)
-emptyAccRatio = 80 #空轉加速度比例(max:80%)
-WORK_TABLE_HEIGHT= -25 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -125 #延伸檯面絕對高度
+emptyAccRatio = 90 #空轉加速度比例(max:80%)
+WORK_TABLE_HEIGHT= -34 #桌面絕對高度
+EXTEND_TABLE_HEIGHT= -120 #延伸檯面絕對高度
 GET_CUBE_STEP = 162 #取料步伐
 GRAB_UNIT_OFFSET = 80 #夾爪單位偏移
 LARGE_CUBE_SIZE = 70 #大方塊尺寸

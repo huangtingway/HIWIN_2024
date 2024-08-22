@@ -3,14 +3,14 @@ import time
 import serial
 
 speedRate=80
-WORK_TABLE_HEIGHT= -25 #桌面絕對高度
-EXTEND_TABLE_HEIGHT= -125 #延伸檯面絕對高度
+WORK_TABLE_HEIGHT= -34 #桌面絕對高度
+EXTEND_TABLE_HEIGHT= -120 #延伸檯面絕對高度
 START_BUTTON_IO_INDEX = 9
 SLOT_IO_INDEX = [9,10,11] #IO
 
 COM_PORT = 'COM7'
 BAUD_RATES = 9600
-IP = "192.168.0.2"
+IP = "192.168.0.4"
 
 HOME_POS = [0.0   ,368.0  ,293.5  ,180.0  ,0.0  ,90.0] #原點位置
 READY_POS = [0.0   ,470.0  ,180.0  ,180.0  ,0.0  ,90.0] #預備位置
